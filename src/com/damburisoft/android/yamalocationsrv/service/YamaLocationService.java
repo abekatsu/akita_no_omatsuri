@@ -29,16 +29,21 @@ public class YamaLocationService extends Service implements LocationListener {
      * runs in the same process as its clients, we don't need to deal with
      * IPC.
      */
-    public class YamaServiceBinder extends Binder {
+    public class YamaLocationServiceBinder extends Binder {
         public YamaLocationService getService() {
             return YamaLocationService.this;
         }
     }
+    
+    // refer to http://developer.android.com/reference/android/app/Service.html
+    // This is the object that receives interactions from clients.  See
+    // RemoteService for a more complete example.
+    private final IBinder mBinder = new YamaLocationServiceBinder();
 
     @Override
-    public IBinder onBind(Intent arg0) {
-        // TODO Auto-generated method stub
-        return null;
+    public IBinder onBind(Intent intent) {
+        Log.d(TAG, "YamaLocationService.onBind");
+        return mBinder;
     }
     
     @Override
@@ -65,6 +70,12 @@ public class YamaLocationService extends Service implements LocationListener {
          */
     }
 
+    
+    @Override
+    public void onDestroy() {
+        unregisterLocationListener();
+        super.onDestroy();
+    }
 
     public void onLocationChanged(Location location) {
         this.curLocation = location;
