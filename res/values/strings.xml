@@ -2,4 +2,12 @@
 <resources>
     <string name="hello">Hello World, YamaLocActivity!</string>
     <string name="app_name">曳山位置情報</string>
+    <string name="azimuth">Azimuth:</string>
+    <string name="current_time">Current Time:</string>
+    <string name="location">Location:</string>
+    <string name="logging_start_button">Start Logging</string>
+    <string name="logging_stop_button">Stop Logging</string>
+    <string name="save_log_button">Save log to SD</string>
+    <string name="quit_button">Quit</string>
+    
 </resources>
