@@ -9,5 +9,6 @@
     <string name="logging_stop_button">Stop Logging</string>
     <string name="save_log_button">Save log to SD</string>
     <string name="quit_button">Quit</string>
-    
+    <string name="yama_location_service_registered">Location Service Registered</string>
+    <string name="yama_location_service_unregistered">Location Service Unregistered</string>
 </resources>
