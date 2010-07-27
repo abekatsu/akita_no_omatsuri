@@ -2,13 +2,17 @@
 <resources>
     <string name="hello">Hello World, YamaLocActivity!</string>
     <string name="app_name">曳山位置情報</string>
-    <string name="azimuth">Azimuth:</string>
-    <string name="current_time">Current Time:</string>
-    <string name="location">Location:</string>
-    <string name="logging_start_button">Start Logging</string>
-    <string name="logging_stop_button">Stop Logging</string>
-    <string name="save_log_button">Save log to SD</string>
-    <string name="quit_button">Quit</string>
+    <string name="azimuth">方位角:</string>
+    <string name="current_time">時刻:</string>
+    <string name="location">現在地:</string>
+ 
+    <string name="menu_start">Start</string>
+    <string name="menu_stop">Stop</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_quit">Quit</string>
+    
+    <string name="log_saved_to_sdcard">Log is saved to SD card.</string>
     <string name="yama_location_service_registered">Location Service Registered</string>
     <string name="yama_location_service_unregistered">Location Service Unregistered</string>
+    
 </resources>
