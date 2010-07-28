@@ -25,6 +25,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -32,23 +33,27 @@ public class YamaLogService extends Service implements LocationListener,
         SensorEventListener {
 
     private static final String TAG = "YamaLogService";
-    
+
     private FileOutputStream mFos = null;
     private Timer mTimer = null;
-    
+
     private SensorManager mSensorManager = null;
     private LocationManager mLocationManager = null;
     private GeomagneticField mGeomagneticField = null;
-    
+
+    private boolean isOnCreateCalled = false;
     private boolean isMagneticFieldSensorRegistered = false;
     private boolean isAccelerometerSensorRegistered = false;
     private boolean isLocationListenerRegistered = false;
-    
+
     private float[] magneticFieldValues = new float[3];
     private float[] accelerometerValues = new float[3];
     private double mCurrentAzimuth = Double.NaN;
     private Location mCurrentLocation = null;
-    
+
+    /** The timer posts a runnable to the main thread via this handler. */
+    private final Handler handler = new Handler();
+
     private TimerTask checkSensorValues = new TimerTask() {
 
         @Override
@@ -56,14 +61,14 @@ public class YamaLogService extends Service implements LocationListener,
             mCurrentAzimuth = calcurateAzimuth();
             if (mCurrentAzimuth == Double.NaN) {
                 Log.d(TAG, "cannot obtain azimuth.");
-                return ;
+                return;
             }
-            
+
             if (mCurrentLocation == null) {
                 Log.d(TAG, "Location has not been settled by GPS.");
-                return ;
+                return;
             }
-            
+
             String logString = createLogInfo();
             try {
                 mFos.write(logString.getBytes());
@@ -71,66 +76,95 @@ public class YamaLogService extends Service implements LocationListener,
                 Log.e(TAG, e.toString());
                 e.printStackTrace();
             }
-            
-            // TODO send Location and azimuth to server.
+
         }
-        
+
         private double calcurateAzimuth() {
             final int MATRIX_SIZE = 16;
-            float[]  inR = new float[MATRIX_SIZE];
+            float[] inR = new float[MATRIX_SIZE];
             float[] outR = new float[MATRIX_SIZE];
-            float[]    I = new float[MATRIX_SIZE];
+            float[] I = new float[MATRIX_SIZE];
             float[] orientationValues = new float[3];
-            
+
             if (magneticFieldValues == null || accelerometerValues == null) {
                 return Double.NaN;
             }
-            
-            SensorManager.getRotationMatrix(inR, I, accelerometerValues, magneticFieldValues);
-            SensorManager.remapCoordinateSystem(inR, SensorManager.AXIS_X, SensorManager.AXIS_Y, outR);
+
+            SensorManager.getRotationMatrix(inR, I, accelerometerValues,
+                    magneticFieldValues);
+            SensorManager.remapCoordinateSystem(inR, SensorManager.AXIS_X,
+                    SensorManager.AXIS_Y, outR);
             SensorManager.getOrientation(outR, orientationValues);
-            
+
             double azimuthDegree = Math.toDegrees(orientationValues[0]);
             if (mGeomagneticField != null) {
                 azimuthDegree += mGeomagneticField.getDeclination();
             }
 
-            while (azimuthDegree < 0.0) { 
+            while (azimuthDegree < 0.0) {
                 azimuthDegree += 360.0;
             }
 
             return azimuthDegree;
         }
-        
+
         private String createLogInfo() {
             StringBuffer sb = new StringBuffer();
             sb.append(DateTimeUtilities.getDateAndTime());
-            sb.append((float)mCurrentLocation.getLongitude());
+            sb.append((float) mCurrentLocation.getLongitude());
             sb.append(",");
-            sb.append((float)mCurrentLocation.getLatitude());
+            sb.append((float) mCurrentLocation.getLatitude());
             sb.append(",");
-            sb.append((float)mCurrentLocation.getAccuracy());
+            sb.append((float) mCurrentLocation.getAccuracy());
             sb.append(",");
-            sb.append((float)mCurrentAzimuth);
+            sb.append((float) mCurrentAzimuth);
             sb.append("\n");
-            
+
             return sb.toString();
         }
     };
 
     /**
-     * Class for clients to access.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with
-     * IPC.
+     * Task invoked by a timer periodically to make sure the location listener
+     * is still registered.
+     */
+    private TimerTask checkLocationListener = new TimerTask() {
+
+        @Override
+        public void run() {
+            if (!isOnCreateCalled) {
+                Log.e(TAG,
+                        "TrackRecordingService is running, but onCreate not called.");
+            }
+
+            if (isLocationListenerRegistered) {
+                handler.post(new Runnable() {
+                    public void run() {
+                        Log.d(TAG,
+                                "Re-registering location listener with YamLogService.");
+                        unregisterLocationListener();
+                        registerLocationListener();
+                    }
+                });
+            } else {
+                Log.w(TAG,
+                        "Track recording service is paused. That should not be.");
+            }
+        }
+    };
+
+    /**
+     * Class for clients to access. Because we know this service always runs in
+     * the same process as its clients, we don't need to deal with IPC.
      */
     public class YamaLogServiceBinder extends Binder {
         public YamaLogService getService() {
             return YamaLogService.this;
         }
     }
-    
+
     // refer to http://developer.android.com/reference/android/app/Service.html
-    // This is the object that receives interactions from clients.  See
+    // This is the object that receives interactions from clients. See
     // RemoteService for a more complete example.
     private final IBinder mBinder = new YamaLogServiceBinder();
 
@@ -145,18 +179,15 @@ public class YamaLogService extends Service implements LocationListener,
         super.onCreate();
         Log.d(TAG, "YamaLogService.onCreate");
 
-        mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         registerSensorEventListener();
-        
-        mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         registerLocationListener();
-        
+
+        isOnCreateCalled = true;
+
         // TODO implement the following feature.
-        /**
-         * After 5 min, check every minute that location listener still is
-         * registered and spit out additional debugging info to the logs:
-         */
-        // timer.schedule(checkLocationListener, 1000 * 60 * 5, 1000 * 60);
 
     }
 
@@ -178,7 +209,8 @@ public class YamaLogService extends Service implements LocationListener,
         float latitude = new Double(location.getLatitude()).floatValue();
         float longitude = new Double(location.getLongitude()).floatValue();
         float altitude = new Double(location.getAltitude()).floatValue();
-        mGeomagneticField = new GeomagneticField(latitude, longitude, altitude, new Date().getTime());
+        mGeomagneticField = new GeomagneticField(latitude, longitude, altitude,
+                new Date().getTime());
     }
 
     public void onProviderDisabled(String provider) {
@@ -207,8 +239,10 @@ public class YamaLogService extends Service implements LocationListener,
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        /* Log.d(TAG, "YamaLogService.onAccuracyChanged. sensor: "
-                + sensor.getName() + ", accuracy :" + accuracy); */
+        /*
+         * Log.d(TAG, "YamaLogService.onAccuracyChanged. sensor: " +
+         * sensor.getName() + ", accuracy :" + accuracy);
+         */
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -218,104 +252,118 @@ public class YamaLogService extends Service implements LocationListener,
             accelerometerValues = event.values.clone();
         }
     }
-    
+
     private boolean registerSensorEventListener() {
         if (mSensorManager == null) {
             Log.e(TAG, "No Sensor Manager");
-            return false; 
+            return false;
         }
-        
-        List<Sensor> sensor_list = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+
+        List<Sensor> sensor_list = mSensorManager
+                .getSensorList(Sensor.TYPE_ALL);
         for (Sensor s : sensor_list) {
             if (s.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                isMagneticFieldSensorRegistered = mSensorManager.registerListener(this, s, 
-                        SensorManager.SENSOR_DELAY_UI);
+                isMagneticFieldSensorRegistered = mSensorManager
+                        .registerListener(this, s,
+                                SensorManager.SENSOR_DELAY_UI);
             } else if (s.getType() == Sensor.TYPE_ACCELEROMETER) {
-                isAccelerometerSensorRegistered = mSensorManager.registerListener(this, s, 
-                        SensorManager.SENSOR_DELAY_UI);
+                isAccelerometerSensorRegistered = mSensorManager
+                        .registerListener(this, s,
+                                SensorManager.SENSOR_DELAY_UI);
             }
         }
-        
-        if (isMagneticFieldSensorRegistered == false || isAccelerometerSensorRegistered == false) {
+
+        if (isMagneticFieldSensorRegistered == false
+                || isAccelerometerSensorRegistered == false) {
             unregisterSensorEventListener();
             return false;
         }
-        
+
         return true;
     }
-    
+
     private void unregisterSensorEventListener() {
         if (mSensorManager == null) {
             Log.e(TAG, "No Sensor Manager");
-            return ;
+            return;
         }
-        
+
         if (isMagneticFieldSensorRegistered) {
             mSensorManager.unregisterListener(this);
             isMagneticFieldSensorRegistered = false;
         }
-        
+
         if (isAccelerometerSensorRegistered) {
             mSensorManager.unregisterListener(this);
             isAccelerometerSensorRegistered = false;
         }
     }
-    
+
     private boolean registerLocationListener() {
         if (mLocationManager == null) {
             Log.e(TAG, "YamaLocationService: No Location Manager.");
             return false;
         }
-        
-        Log.d(TAG, "Preparing to register location listener with YamaLogService");
+
+        Log.d(TAG,
+                "Preparing to register location listener with YamaLogService");
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 60 * 1000, 0, this);
         isLocationListenerRegistered = true;
         return true;
     }
-    
+
     private void unregisterLocationListener() {
         if (mLocationManager == null) {
             Log.e(TAG, "YamaLogService: No Location Manager.");
             return;
         }
-        
+
         if (isLocationListenerRegistered) {
             mLocationManager.removeUpdates(this);
             isLocationListenerRegistered = false;
         }
-        
+
     }
 
     public boolean startLogService() {
         boolean retValue = false;
         Log.d(TAG, "YamaLogService.startLogService");
         retValue = registerSensorEventListener();
-        
+
         if (!retValue) {
             return false;
         }
-        
+
         retValue = registerLocationListener();
 
         try {
-            mFos = openFileOutput(YamaLocationProviderConstants.logFileName, MODE_PRIVATE);
+            mFos = openFileOutput(YamaLocationProviderConstants.logFileName,
+                    MODE_PRIVATE);
         } catch (FileNotFoundException e) {
             retValue = false;
             e.printStackTrace();
         }
-        
+
         mTimer = new Timer();
         mTimer.schedule(checkSensorValues, 0, 10 * 1000);
 
+        /**
+         * After 2 min, check every minute that location listener still is
+         * registered and spit out additional debugging info to the logs:
+         */
+        // TODO determinate the interval for effective battery life.
+
+        mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
+
         return retValue;
     }
-    
+
     public void stopLogService() {
         Log.d(TAG, "YamaLogService.stopLogService");
         unregisterSensorEventListener();
         unregisterLocationListener();
-        
+
         try {
             if (mFos != null) {
                 mFos.close();
@@ -326,12 +374,15 @@ public class YamaLogService extends Service implements LocationListener,
         } finally {
             mFos = null;
         }
-        
+
+        checkSensorValues.cancel();
+        checkLocationListener.cancel();
+
         if (mTimer != null) {
             mTimer.cancel();
             mTimer = null;
         }
-        
+
     }
 
     public double getAzimuth() {
