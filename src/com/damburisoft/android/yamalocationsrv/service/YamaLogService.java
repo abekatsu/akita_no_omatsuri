@@ -107,7 +107,7 @@ public class YamaLogService extends Service implements LocationListener,
 
             return azimuthDegree;
         }
-
+        
         private String createLogInfo() {
             StringBuffer sb = new StringBuffer();
             sb.append(DateTimeUtilities.getDateAndTime());
@@ -123,7 +123,9 @@ public class YamaLogService extends Service implements LocationListener,
             return sb.toString();
         }
     };
-
+    
+    private boolean ischeckSensorValuesRunning = false;
+    
     /**
      * Task invoked by a timer periodically to make sure the location listener
      * is still registered.
@@ -152,6 +154,8 @@ public class YamaLogService extends Service implements LocationListener,
             }
         }
     };
+    
+    private boolean ischeckLocationListenerRunning = false;
 
     /**
      * Class for clients to access. Because we know this service always runs in
@@ -346,15 +350,25 @@ public class YamaLogService extends Service implements LocationListener,
         }
 
         mTimer = new Timer();
+        
+        if (ischeckSensorValuesRunning) {
+            checkSensorValues.cancel();
+            ischeckSensorValuesRunning = false;
+        }
         mTimer.schedule(checkSensorValues, 0, 10 * 1000);
+        ischeckSensorValuesRunning = true;
 
         /**
          * After 2 min, check every minute that location listener still is
          * registered and spit out additional debugging info to the logs:
          */
         // TODO determinate the interval for effective battery life.
-
+        if (ischeckLocationListenerRunning) {
+            checkLocationListener.cancel();
+            ischeckLocationListenerRunning = false;
+        }
         mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
+        ischeckLocationListenerRunning = true;
 
         return retValue;
     }
@@ -376,7 +390,9 @@ public class YamaLogService extends Service implements LocationListener,
         }
 
         checkSensorValues.cancel();
+        ischeckSensorValuesRunning = false;
         checkLocationListener.cancel();
+        ischeckLocationListenerRunning = false;
 
         if (mTimer != null) {
             mTimer.cancel();
