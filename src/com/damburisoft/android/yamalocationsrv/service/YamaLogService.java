@@ -23,10 +23,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 
 public class YamaLogService extends Service implements LocationListener,
@@ -107,7 +107,7 @@ public class YamaLogService extends Service implements LocationListener,
 
             return azimuthDegree;
         }
-        
+
         private String createLogInfo() {
             StringBuffer sb = new StringBuffer();
             sb.append(DateTimeUtilities.getDateAndTime());
@@ -123,9 +123,9 @@ public class YamaLogService extends Service implements LocationListener,
             return sb.toString();
         }
     };
-    
+
     private boolean ischeckSensorValuesRunning = false;
-    
+
     /**
      * Task invoked by a timer periodically to make sure the location listener
      * is still registered.
@@ -154,28 +154,30 @@ public class YamaLogService extends Service implements LocationListener,
             }
         }
     };
-    
+
     private boolean ischeckLocationListenerRunning = false;
 
     /**
      * Class for clients to access. Because we know this service always runs in
      * the same process as its clients, we don't need to deal with IPC.
      */
-    public class YamaLogServiceBinder extends Binder {
-        public YamaLogService getService() {
-            return YamaLogService.this;
-        }
-    }
+    // TODO refactoring.
+    /*
+     * public class YamaLogServiceBinder extends Binder { public YamaLogService
+     * getService() { return YamaLogService.this; } }
+     */
 
     // refer to http://developer.android.com/reference/android/app/Service.html
     // This is the object that receives interactions from clients. See
     // RemoteService for a more complete example.
-    private final IBinder mBinder = new YamaLogServiceBinder();
+    // TODO refactoring.
+    // private final IBinder mBinder = new YamaLogServiceBinder();
 
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "YamaLogService.onBind");
-        return mBinder;
+        // return mBinder;
+        return binder;
     }
 
     @Override
@@ -330,76 +332,53 @@ public class YamaLogService extends Service implements LocationListener,
 
     }
 
-    public boolean startLogService() {
-        boolean retValue = false;
-        Log.d(TAG, "YamaLogService.startLogService");
-        retValue = registerSensorEventListener();
+    /*
+     * public boolean startLogService() { boolean retValue = false; Log.d(TAG,
+     * "YamaLogService.startLogService"); retValue =
+     * registerSensorEventListener();
+     * 
+     * if (!retValue) { return false; }
+     * 
+     * retValue = registerLocationListener();
+     * 
+     * try { mFos = openFileOutput(YamaLocationProviderConstants.logFileName,
+     * MODE_PRIVATE); } catch (FileNotFoundException e) { retValue = false;
+     * e.printStackTrace(); }
+     * 
+     * mTimer = new Timer();
+     * 
+     * if (ischeckSensorValuesRunning) { checkSensorValues.cancel();
+     * ischeckSensorValuesRunning = false; } mTimer.schedule(checkSensorValues,
+     * 0, 10 * 1000); ischeckSensorValuesRunning = true;
+     *//**
+     * After 2 min, check every minute that location listener still is
+     * registered and spit out additional debugging info to the logs:
+     */
+    /*
+     * // TODO determinate the interval for effective battery life. if
+     * (ischeckLocationListenerRunning) { checkLocationListener.cancel();
+     * ischeckLocationListenerRunning = false; }
+     * mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
+     * ischeckLocationListenerRunning = true;
+     * 
+     * return retValue; }
+     */
 
-        if (!retValue) {
-            return false;
-        }
-
-        retValue = registerLocationListener();
-
-        try {
-            mFos = openFileOutput(YamaLocationProviderConstants.logFileName,
-                    MODE_PRIVATE);
-        } catch (FileNotFoundException e) {
-            retValue = false;
-            e.printStackTrace();
-        }
-
-        mTimer = new Timer();
-        
-        if (ischeckSensorValuesRunning) {
-            checkSensorValues.cancel();
-            ischeckSensorValuesRunning = false;
-        }
-        mTimer.schedule(checkSensorValues, 0, 10 * 1000);
-        ischeckSensorValuesRunning = true;
-
-        /**
-         * After 2 min, check every minute that location listener still is
-         * registered and spit out additional debugging info to the logs:
-         */
-        // TODO determinate the interval for effective battery life.
-        if (ischeckLocationListenerRunning) {
-            checkLocationListener.cancel();
-            ischeckLocationListenerRunning = false;
-        }
-        mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
-        ischeckLocationListenerRunning = true;
-
-        return retValue;
-    }
-
-    public void stopLogService() {
-        Log.d(TAG, "YamaLogService.stopLogService");
-        unregisterSensorEventListener();
-        unregisterLocationListener();
-
-        try {
-            if (mFos != null) {
-                mFos.close();
-            }
-        } catch (IOException e) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
-        } finally {
-            mFos = null;
-        }
-
-        checkSensorValues.cancel();
-        ischeckSensorValuesRunning = false;
-        checkLocationListener.cancel();
-        ischeckLocationListenerRunning = false;
-
-        if (mTimer != null) {
-            mTimer.cancel();
-            mTimer = null;
-        }
-
-    }
+    /*
+     * public void stopLogService() { Log.d(TAG,
+     * "YamaLogService.stopLogService"); unregisterSensorEventListener();
+     * unregisterLocationListener();
+     * 
+     * try { if (mFos != null) { mFos.close(); } } catch (IOException e) {
+     * Log.e(TAG, e.toString()); e.printStackTrace(); } finally { mFos = null; }
+     * 
+     * checkSensorValues.cancel(); ischeckSensorValuesRunning = false;
+     * checkLocationListener.cancel(); ischeckLocationListenerRunning = false;
+     * 
+     * if (mTimer != null) { mTimer.cancel(); mTimer = null; }
+     * 
+     * }
+     */
 
     public double getAzimuth() {
         return mCurrentAzimuth;
@@ -408,5 +387,100 @@ public class YamaLogService extends Service implements LocationListener,
     public Location getCurrentLocation() {
         return mCurrentLocation;
     }
+
+    /**
+     * The IYamaLogService is defined through IDL.
+     */
+
+    private final IYamaLogService.Stub binder = new IYamaLogService.Stub() {
+
+        public boolean startLogService() throws RemoteException {
+            boolean retValue = false;
+            Log.d(TAG, "IYamaLogService.Stub.startLogService");
+            retValue = registerSensorEventListener();
+
+            if (!retValue) {
+                return false;
+            }
+
+            retValue = registerLocationListener();
+
+            try {
+                mFos = openFileOutput(
+                        YamaLocationProviderConstants.logFileName, MODE_PRIVATE);
+            } catch (FileNotFoundException e) {
+                retValue = false;
+                e.printStackTrace();
+            }
+
+            mTimer = new Timer();
+
+            if (ischeckSensorValuesRunning) {
+                checkSensorValues.cancel();
+                ischeckSensorValuesRunning = false;
+            }
+            mTimer.schedule(checkSensorValues, 0, 10 * 1000);
+            ischeckSensorValuesRunning = true;
+
+            /**
+             * After 2 min, check every minute that location listener still is
+             * registered and spit out additional debugging info to the logs:
+             */
+            // TODO determinate the interval for effective battery life.
+            if (ischeckLocationListenerRunning) {
+                checkLocationListener.cancel();
+                ischeckLocationListenerRunning = false;
+            }
+            mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
+            ischeckLocationListenerRunning = true;
+
+            return retValue;
+        }
+
+        public void stopLogService() throws RemoteException {
+            // TODO Auto-generated method stub
+            Log.d(TAG, "YamaLogService.stopLogService");
+            unregisterSensorEventListener();
+            unregisterLocationListener();
+
+            try {
+                if (mFos != null) {
+                    mFos.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, e.toString());
+                e.printStackTrace();
+            } finally {
+                mFos = null;
+            }
+
+            checkSensorValues.cancel();
+            ischeckSensorValuesRunning = false;
+            checkLocationListener.cancel();
+            ischeckLocationListenerRunning = false;
+
+            if (mTimer != null) {
+                mTimer.cancel();
+                mTimer = null;
+            }
+        }
+
+        public boolean isMonitoring() throws RemoteException {
+            boolean retvalue = false;
+            if (ischeckLocationListenerRunning && ischeckSensorValuesRunning) {
+                retvalue = true;
+            }
+            return retvalue;
+        }
+
+        public Location getCurrentLocation() throws RemoteException {
+            return mCurrentLocation;
+        }
+
+        public double getAzimuth() throws RemoteException {
+            return mCurrentAzimuth;
+        }
+
+    };
 
 }

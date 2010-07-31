@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.damburisoft.android.yamalocationsrv.service.IYamaLogService;
 import com.damburisoft.android.yamalocationsrv.service.YamaLogService;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -26,6 +27,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,8 +37,9 @@ import android.widget.Toast;
 
 public class YamaLocActivity extends MapActivity {
     private final static String TAG = "YamaLocActivity";
-    private YamaLogService yamaLogService = null;
+    private IYamaLogService yamaLogService = null;
     private boolean isYamaLogServiceConnected = false;
+    private boolean isNewLoggingRequested = false;
 
     private MapView mMapView;
     private MapController mMapController = null;
@@ -54,13 +57,26 @@ public class YamaLocActivity extends MapActivity {
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             Log.d(TAG, "ServiceConnection.onServiceConnected");
-            yamaLogService = ((YamaLogService.YamaLogServiceBinder) service)
-                    .getService();
-            isYamaLogServiceConnected = yamaLogService.startLogService();
+            yamaLogService = IYamaLogService.Stub.asInterface(service);
+            if (isNewLoggingRequested) {
+                isNewLoggingRequested = false;
+                try {
+                    isYamaLogServiceConnected = yamaLogService
+                            .startLogService();
+                    Toast.makeText(YamaLocActivity.this,
+                            R.string.status_now_logging, Toast.LENGTH_SHORT)
+                            .show();
+                } catch (RemoteException e) {
+                    Toast.makeText(YamaLocActivity.this,
+                            R.string.error_unable_to_start_logging,
+                            Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Unable to start logging", e);
+                }
+            }
         }
 
         public void onServiceDisconnected(ComponentName name) {
-            yamaLogService.stopLogService();
+            Log.d(TAG, "YamaLogActivity: Service now disconnected.");
             yamaLogService = null;
             isYamaLogServiceConnected = false;
         }
@@ -81,15 +97,16 @@ public class YamaLocActivity extends MapActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        stopPollingService();
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
+        tryUnbindLogService();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        startPollingService();
+        // startPollingService();
+        tryBindLogService();
     }
 
     @Override
@@ -102,7 +119,20 @@ public class YamaLocActivity extends MapActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem mi = menu.findItem(R.id.menu_startstop);
-        if (isYamaLogServiceConnected) {
+        boolean isMonitoring = false;
+
+        if (yamaLogService == null) {
+            return false;
+        }
+
+        try {
+            isMonitoring = yamaLogService.isMonitoring();
+        } catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (isYamaLogServiceConnected && isMonitoring) {
             mi.setTitle(R.string.menu_stop);
         } else {
             mi.setTitle(R.string.menu_start);
@@ -117,14 +147,12 @@ public class YamaLocActivity extends MapActivity {
         switch (item.getItemId()) {
         case R.id.menu_startstop:
             if (!isYamaLogServiceConnected) {
-                startService(new Intent(YamaLocActivity.this,
-                        YamaLogService.class));
-                tryBindLogService();
+                startPollingService();
+                // startService(new Intent(YamaLocActivity.this,
+                // YamaLogService.class));
+                // tryBindLogService();
             } else {
-                tryUnbindLogService();
-                stopService(new Intent(YamaLocActivity.this,
-                        YamaLogService.class));
-                yamaLogService = null;
+                stopPollingService();
             }
             retvalue = true;
             break;
@@ -203,6 +231,17 @@ public class YamaLocActivity extends MapActivity {
     }
 
     private void startPollingService() {
+
+        if (yamaLogService == null) {
+            isNewLoggingRequested = true;
+            Intent startIntent = new Intent(YamaLocActivity.this,
+                    YamaLogService.class);
+            startService(startIntent);
+            tryBindLogService();
+        } else {
+            // TODO
+        }
+
         mTimer = new Timer();
         checkServiceValues = new TimerTask() {
             @Override
@@ -217,33 +256,46 @@ public class YamaLocActivity extends MapActivity {
                     return;
                 }
 
-                double azimuth = yamaLogService.getAzimuth();
-                if (azimuth != Double.NaN) {
-                    Message msg = new Message();
-                    msg.what = YamaLocationProviderConstants.RedrawType.TextView;
-                    msg.arg1 = YamaLocationProviderConstants.UpdateInfo.AZIMUTH;
-                    msg.obj = (Object) Double.toString(azimuth);
-                    mRedrawHandler.sendMessage(msg);
+                double azimuth;
+                try {
+                    azimuth = yamaLogService.getAzimuth();
+                    if (azimuth != Double.NaN) {
+                        Message msg = new Message();
+                        msg.what = YamaLocationProviderConstants.RedrawType.TextView;
+                        msg.arg1 = YamaLocationProviderConstants.UpdateInfo.AZIMUTH;
+                        msg.obj = (Object) Double.toString(azimuth);
+                        mRedrawHandler.sendMessage(msg);
+                    }
+                } catch (RemoteException e) {
+                    Log.d(TAG, "Failed to get Azimuth", e);
+                    e.printStackTrace();
                 }
 
-                Location loc = yamaLogService.getCurrentLocation();
-                if (loc != null) {
-                    Message msg_tv = new Message();
-                    msg_tv.what = YamaLocationProviderConstants.RedrawType.TextView;
-                    msg_tv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
-                    msg_tv.obj = (Object) getLocationStringForTextView(loc);
-                    mRedrawHandler.sendMessage(msg_tv);
+                Location loc;
+                try {
+                    loc = yamaLogService.getCurrentLocation();
+                    if (loc != null) {
+                        Message msg_tv = new Message();
+                        msg_tv.what = YamaLocationProviderConstants.RedrawType.TextView;
+                        msg_tv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
+                        msg_tv.obj = (Object) getLocationStringForTextView(loc);
+                        mRedrawHandler.sendMessage(msg_tv);
 
-                    Message msg_mv = new Message();
-                    msg_mv.what = YamaLocationProviderConstants.RedrawType.MapView;
-                    msg_mv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
-                    msg_mv.obj = (Object) loc;
-                    mRedrawHandler.sendMessage(msg_mv);
+                        Message msg_mv = new Message();
+                        msg_mv.what = YamaLocationProviderConstants.RedrawType.MapView;
+                        msg_mv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
+                        msg_mv.obj = (Object) loc;
+                        mRedrawHandler.sendMessage(msg_mv);
+                    }
+                } catch (RemoteException e) {
+                    Log.d(TAG, "Failed to get Location", e);
+                    e.printStackTrace();
                 }
             }
         };
 
-        mTimer.schedule(checkServiceValues, 0, 10 * 1000);
+        mTimer.schedule(checkServiceValues, 0,
+                YamaLocationProviderConstants.PollingInterval);
 
     }
 
@@ -260,6 +312,16 @@ public class YamaLocActivity extends MapActivity {
 
         checkServiceValues = null;
         mTimer = null;
+
+        tryUnbindLogService();
+        try {
+            stopService(new Intent(YamaLocActivity.this, YamaLogService.class));
+        } catch (SecurityException e) {
+            Log.e(TAG,
+                    "Encountered a security exception when trying to stop service.",
+                    e);
+        }
+        yamaLogService = null;
     }
 
     private void copyLogToSdCard() {
