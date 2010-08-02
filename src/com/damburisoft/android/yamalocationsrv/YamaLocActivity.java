@@ -148,9 +148,6 @@ public class YamaLocActivity extends MapActivity {
         case R.id.menu_startstop:
             if (!isYamaLogServiceConnected) {
                 startPollingService();
-                // startService(new Intent(YamaLocActivity.this,
-                // YamaLogService.class));
-                // tryBindLogService();
             } else {
                 stopPollingService();
             }
