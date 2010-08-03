@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/akita_no_omatrusi_preference_title">
+        <ListPreference
+            android:key="neighborhood_associate"
+            android:title="@string/neighborhood_associate_title"
+            android:summary="@string/neighborhood_associate_summary"
+            android:dialogTitle="@string/neighborhood_associate_dialogtitle"
+            android:entries="@array/neighborhood_associate_entries"
+            android:entryValues="@array/neiglist_associate_values"
+            android:defaultValue="0" />
+    </PreferenceCategory>
+</PreferenceScreen>

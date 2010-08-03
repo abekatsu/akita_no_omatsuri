@@ -18,11 +18,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/location" />
-     <com.google.android.maps.MapView
+    <com.google.android.maps.MapView
         android:id="@+id/yama_mapview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:enabled="true"
         android:clickable="true"
-        android:apiKey="0nsrIPXPn5U7sLN4a1YmddJTVZqAAu5IIWz8cVw" />
+        android:apiKey="0nsrIPXPn5U6yFQcMmLDJA9dBeOHr53VU-ErfAw" /> 
 </LinearLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <string-array name="neighborhood_associate_entries">
+        <item>A 町</item>
+        <item>B 町</item>
+        <item>C 町</item>
+        <item>D 町</item>
+        <item>E 町</item>
+        <item>F 町</item>
+        <item>G 町</item>
+        <item>H 町</item>
+        <item>I 町</item>
+        <item>J 町</item>
+        <item>K 町</item>
+        <item>L 町</item>
+    </string-array>
+
+    <string-array name="neiglist_associate_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+    </string-array>
+</resources>

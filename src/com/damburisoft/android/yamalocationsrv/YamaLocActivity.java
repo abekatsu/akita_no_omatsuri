@@ -105,7 +105,6 @@ public class YamaLocActivity extends MapActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // startPollingService();
         tryBindLogService();
     }
 
@@ -122,7 +121,8 @@ public class YamaLocActivity extends MapActivity {
         boolean isMonitoring = false;
 
         if (yamaLogService == null) {
-            return false;
+            // mi.setTitle(R.string.menu_start);
+            return true;
         }
 
         try {
@@ -147,8 +147,10 @@ public class YamaLocActivity extends MapActivity {
         switch (item.getItemId()) {
         case R.id.menu_startstop:
             if (!isYamaLogServiceConnected) {
+                isNewLoggingRequested = true;
                 startPollingService();
             } else {
+                isNewLoggingRequested = false;
                 stopPollingService();
             }
             retvalue = true;
@@ -161,6 +163,13 @@ public class YamaLocActivity extends MapActivity {
             break;
         case R.id.menu_quit:
             finish();
+            retvalue = true;
+            break;
+        case R.id.menu_preference:
+            Intent intent = new Intent();
+            intent.setClassName("com.damburisoft.android.yamalocationsrv",
+                    "com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity");
+            startActivity(intent);
             retvalue = true;
             break;
         default:
@@ -228,72 +237,70 @@ public class YamaLocActivity extends MapActivity {
     }
 
     private void startPollingService() {
-
-        if (yamaLogService == null) {
-            isNewLoggingRequested = true;
-            Intent startIntent = new Intent(YamaLocActivity.this,
-                    YamaLogService.class);
-            startService(startIntent);
-            tryBindLogService();
-        } else {
-            // TODO
-        }
-
-        mTimer = new Timer();
-        checkServiceValues = new TimerTask() {
-            @Override
-            public void run() {
-                Message msg_time = new Message();
-                msg_time.what = YamaLocationProviderConstants.RedrawType.TextView;
-                msg_time.arg1 = YamaLocationProviderConstants.UpdateInfo.DATETIME;
-                msg_time.obj = (Object) DateTimeUtilities.getDateAndTime();
-                mRedrawHandler.sendMessage(msg_time);
-
-                if (yamaLogService == null) {
-                    return;
-                }
-
-                double azimuth;
-                try {
-                    azimuth = yamaLogService.getAzimuth();
-                    if (azimuth != Double.NaN) {
-                        Message msg = new Message();
-                        msg.what = YamaLocationProviderConstants.RedrawType.TextView;
-                        msg.arg1 = YamaLocationProviderConstants.UpdateInfo.AZIMUTH;
-                        msg.obj = (Object) Double.toString(azimuth);
-                        mRedrawHandler.sendMessage(msg);
-                    }
-                } catch (RemoteException e) {
-                    Log.d(TAG, "Failed to get Azimuth", e);
-                    e.printStackTrace();
-                }
-
-                Location loc;
-                try {
-                    loc = yamaLogService.getCurrentLocation();
-                    if (loc != null) {
-                        Message msg_tv = new Message();
-                        msg_tv.what = YamaLocationProviderConstants.RedrawType.TextView;
-                        msg_tv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
-                        msg_tv.obj = (Object) getLocationStringForTextView(loc);
-                        mRedrawHandler.sendMessage(msg_tv);
-
-                        Message msg_mv = new Message();
-                        msg_mv.what = YamaLocationProviderConstants.RedrawType.MapView;
-                        msg_mv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
-                        msg_mv.obj = (Object) loc;
-                        mRedrawHandler.sendMessage(msg_mv);
-                    }
-                } catch (RemoteException e) {
-                    Log.d(TAG, "Failed to get Location", e);
-                    e.printStackTrace();
-                }
+        if (isNewLoggingRequested) {
+            if (yamaLogService == null) {
+                Intent startIntent = new Intent(YamaLocActivity.this,
+                        YamaLogService.class);
+                startService(startIntent);
+                tryBindLogService();
+            } else {
+                // TODO
             }
-        };
+            mTimer = new Timer();
+            checkServiceValues = new TimerTask() {
+                @Override
+                public void run() {
+                    Message msg_time = new Message();
+                    msg_time.what = YamaLocationProviderConstants.RedrawType.TextView;
+                    msg_time.arg1 = YamaLocationProviderConstants.UpdateInfo.DATETIME;
+                    msg_time.obj = (Object) DateTimeUtilities.getDateAndTime();
+                    mRedrawHandler.sendMessage(msg_time);
 
-        mTimer.schedule(checkServiceValues, 0,
-                YamaLocationProviderConstants.PollingInterval);
+                    if (yamaLogService == null) {
+                        return;
+                    }
 
+                    double azimuth;
+                    try {
+                        azimuth = yamaLogService.getAzimuth();
+                        if (azimuth != Double.NaN) {
+                            Message msg = new Message();
+                            msg.what = YamaLocationProviderConstants.RedrawType.TextView;
+                            msg.arg1 = YamaLocationProviderConstants.UpdateInfo.AZIMUTH;
+                            msg.obj = (Object) Double.toString(azimuth);
+                            mRedrawHandler.sendMessage(msg);
+                        }
+                    } catch (RemoteException e) {
+                        Log.d(TAG, "Failed to get Azimuth", e);
+                        e.printStackTrace();
+                    }
+
+                    Location loc;
+                    try {
+                        loc = yamaLogService.getCurrentLocation();
+                        if (loc != null) {
+                            Message msg_tv = new Message();
+                            msg_tv.what = YamaLocationProviderConstants.RedrawType.TextView;
+                            msg_tv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
+                            msg_tv.obj = (Object) getLocationStringForTextView(loc);
+                            mRedrawHandler.sendMessage(msg_tv);
+
+                            Message msg_mv = new Message();
+                            msg_mv.what = YamaLocationProviderConstants.RedrawType.MapView;
+                            msg_mv.arg1 = YamaLocationProviderConstants.UpdateInfo.LOCATION;
+                            msg_mv.obj = (Object) loc;
+                            mRedrawHandler.sendMessage(msg_mv);
+                        }
+                    } catch (RemoteException e) {
+                        Log.d(TAG, "Failed to get Location", e);
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            mTimer.schedule(checkServiceValues, 0,
+                    YamaLocationProviderConstants.PollingInterval);
+        }
     }
 
     private void stopPollingService() {
@@ -357,9 +364,11 @@ public class YamaLocActivity extends MapActivity {
     }
 
     private void tryBindLogService() {
-        isYamaLogServiceConnected = bindService(new Intent(this,
-                YamaLogService.class), serviceConnection,
-                Context.BIND_AUTO_CREATE);
+        if (isNewLoggingRequested) {
+            isYamaLogServiceConnected = bindService(new Intent(this,
+                    YamaLogService.class), serviceConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
     }
 
     private void tryUnbindLogService() {
