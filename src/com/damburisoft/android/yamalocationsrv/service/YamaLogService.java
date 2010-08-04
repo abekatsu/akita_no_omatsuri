@@ -12,6 +12,7 @@ import com.damburisoft.android.yamalocationsrv.DateTimeUtilities;
 import com.damburisoft.android.yamalocationsrv.YamaLocationProviderConstants;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.GeomagneticField;
@@ -26,7 +27,9 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.RemoteException;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 public class YamaLogService extends Service implements LocationListener,
@@ -157,21 +160,7 @@ public class YamaLogService extends Service implements LocationListener,
 
     private boolean ischeckLocationListenerRunning = false;
 
-    /**
-     * Class for clients to access. Because we know this service always runs in
-     * the same process as its clients, we don't need to deal with IPC.
-     */
-    // TODO refactoring.
-    /*
-     * public class YamaLogServiceBinder extends Binder { public YamaLogService
-     * getService() { return YamaLogService.this; } }
-     */
-
-    // refer to http://developer.android.com/reference/android/app/Service.html
-    // This is the object that receives interactions from clients. See
-    // RemoteService for a more complete example.
-    // TODO refactoring.
-    // private final IBinder mBinder = new YamaLogServiceBinder();
+    private WakeLock mWakeLock;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -190,10 +179,10 @@ public class YamaLogService extends Service implements LocationListener,
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         registerLocationListener();
+        
+        acquireWakeLock();
 
         isOnCreateCalled = true;
-
-        // TODO implement the following feature.
 
     }
 
@@ -205,11 +194,15 @@ public class YamaLogService extends Service implements LocationListener,
 
     @Override
     public void onDestroy() {
+        if (mWakeLock != null && mWakeLock.isHeld()) {
+            mWakeLock.release();
+        }
         unregisterSensorEventListener();
         unregisterLocationListener();
         super.onDestroy();
     }
 
+    
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         float latitude = new Double(location.getLatitude()).floatValue();
@@ -257,6 +250,20 @@ public class YamaLogService extends Service implements LocationListener,
         } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             accelerometerValues = event.values.clone();
         }
+    }
+    
+    
+
+    @Override
+    public ComponentName startService(Intent service) {
+        Log.d(TAG, "YamaLogService.startService");
+        return super.startService(service);
+    }
+
+    @Override
+    public boolean stopService(Intent name) {
+        Log.d(TAG, "YamaLogService.stopService");
+        return super.stopService(name);
     }
 
     private boolean registerSensorEventListener() {
@@ -332,53 +339,6 @@ public class YamaLogService extends Service implements LocationListener,
 
     }
 
-    /*
-     * public boolean startLogService() { boolean retValue = false; Log.d(TAG,
-     * "YamaLogService.startLogService"); retValue =
-     * registerSensorEventListener();
-     * 
-     * if (!retValue) { return false; }
-     * 
-     * retValue = registerLocationListener();
-     * 
-     * try { mFos = openFileOutput(YamaLocationProviderConstants.logFileName,
-     * MODE_PRIVATE); } catch (FileNotFoundException e) { retValue = false;
-     * e.printStackTrace(); }
-     * 
-     * mTimer = new Timer();
-     * 
-     * if (ischeckSensorValuesRunning) { checkSensorValues.cancel();
-     * ischeckSensorValuesRunning = false; } mTimer.schedule(checkSensorValues,
-     * 0, 10 * 1000); ischeckSensorValuesRunning = true;
-     *//**
-     * After 2 min, check every minute that location listener still is
-     * registered and spit out additional debugging info to the logs:
-     */
-    /*
-     * // TODO determinate the interval for effective battery life. if
-     * (ischeckLocationListenerRunning) { checkLocationListener.cancel();
-     * ischeckLocationListenerRunning = false; }
-     * mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
-     * ischeckLocationListenerRunning = true;
-     * 
-     * return retValue; }
-     */
-
-    /*
-     * public void stopLogService() { Log.d(TAG,
-     * "YamaLogService.stopLogService"); unregisterSensorEventListener();
-     * unregisterLocationListener();
-     * 
-     * try { if (mFos != null) { mFos.close(); } } catch (IOException e) {
-     * Log.e(TAG, e.toString()); e.printStackTrace(); } finally { mFos = null; }
-     * 
-     * checkSensorValues.cancel(); ischeckSensorValuesRunning = false;
-     * checkLocationListener.cancel(); ischeckLocationListenerRunning = false;
-     * 
-     * if (mTimer != null) { mTimer.cancel(); mTimer = null; }
-     * 
-     * }
-     */
 
     public double getAzimuth() {
         return mCurrentAzimuth;
@@ -388,6 +348,33 @@ public class YamaLogService extends Service implements LocationListener,
         return mCurrentLocation;
     }
 
+    /**
+     * Tries to acquire a partial wake lock if not already acquired. Logs errors
+     * and gives up trying in case the wake lock cannot be acquired.
+     */
+    public void acquireWakeLock() {
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (pm == null) {
+            Log.e(TAG, "No Pawer Management found.");
+            return ;
+        }
+        
+        if (mWakeLock == null) {
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock of YamaLogService");
+            if (mWakeLock == null) {
+                Log.e(TAG, "Could not create wake lock (null).");
+                return ;
+            }
+        }
+        
+        if (!mWakeLock.isHeld()) {
+            mWakeLock.acquire();
+            if (!mWakeLock.isHeld()) {
+                Log.e(TAG, "Could not acquire wake lock.");
+            }
+        }
+    }
+    
     /**
      * The IYamaLogService is defined through IDL.
      */
@@ -422,7 +409,7 @@ public class YamaLogService extends Service implements LocationListener,
             mTimer.schedule(checkSensorValues, 0, 10 * 1000);
             ischeckSensorValuesRunning = true;
 
-            /**
+            /** 
              * After 2 min, check every minute that location listener still is
              * registered and spit out additional debugging info to the logs:
              */

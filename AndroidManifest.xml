@@ -28,8 +28,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"></uses-permission>
     <uses-permission android:name="android.permission.CLEAR_APP_USER_DATA"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.SUBSCRIBED_FEEDS_READ"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"/>
 </manifest> 

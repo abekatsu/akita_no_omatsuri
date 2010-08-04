@@ -118,21 +118,7 @@ public class YamaLocActivity extends MapActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem mi = menu.findItem(R.id.menu_startstop);
-        boolean isMonitoring = false;
-
-        if (yamaLogService == null) {
-            // mi.setTitle(R.string.menu_start);
-            return true;
-        }
-
-        try {
-            isMonitoring = yamaLogService.isMonitoring();
-        } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        if (isYamaLogServiceConnected && isMonitoring) {
+        if (isMonitoring()) {
             mi.setTitle(R.string.menu_stop);
         } else {
             mi.setTitle(R.string.menu_start);
@@ -177,6 +163,23 @@ public class YamaLocActivity extends MapActivity {
         }
 
         return retvalue;
+    }
+    
+    /**
+     * @return true if the activity is bound to the track recording service and
+     * the service is recording a track.
+     */
+    private boolean isMonitoring() {
+        if (yamaLogService == null) {
+            return false;
+        }
+
+        try {
+            return yamaLogService.isMonitoring();
+        } catch (RemoteException e) {
+            Log.e(TAG, "Remote exception.", e);
+            return false;
+        }
     }
 
     private void createRedrawHandler() {
