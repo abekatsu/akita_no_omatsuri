@@ -77,6 +77,12 @@ public class YamaLocActivity extends MapActivity {
 
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "YamaLogActivity: Service now disconnected.");
+            try {
+                yamaLogService.stopLogService();
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             yamaLogService = null;
             isYamaLogServiceConnected = false;
         }
@@ -106,6 +112,14 @@ public class YamaLocActivity extends MapActivity {
     protected void onResume() {
         super.onResume();
         tryBindLogService();
+    }
+    
+
+
+    @Override
+    protected void onStop() {
+        // TODO Auto-generated method stub
+        super.onStop();
     }
 
     @Override
