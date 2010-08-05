@@ -4,6 +4,8 @@ public abstract class YamaLocationProviderConstants {
 
     public static final String logFileName = "YamaLocation.log";
     
+    public static final String IsLoggingServiceRunning = "isLoggingServiceRunning";
+    
     public static long PollingInterval = 60 * 1000;
     
     public abstract class RedrawType {
