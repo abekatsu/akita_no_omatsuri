@@ -19,19 +19,19 @@ interface IYamaLogService {
 
     /**
      * Return the sensors (GPS, azimuth) are running.
-     * @return true if both GPS and azimuth sensors are ruuning, otherwise false.
+     * @return true if both GPS and azimuth sensors are running, otherwise false.
      */
-    boolean isMonitoring();
-
+    boolean isSensorRunning();
+    
     /**
      * Return the current azimuth from true north as degree.
-     * @return the crrent azimuth
+     * @return the current azimuth
      */
     double getAzimuth();
 
     /**
      * Returns the current Location, which GPS sensor being recorded.
-     * @return the currnet Location.
+     * @return the current Location.
      */
     Location getCurrentLocation();
 

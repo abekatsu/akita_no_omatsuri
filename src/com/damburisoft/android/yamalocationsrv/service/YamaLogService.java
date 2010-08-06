@@ -9,6 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.damburisoft.android.yamalocationsrv.DateTimeUtilities;
+import com.damburisoft.android.yamalocationsrv.YamaHttpClient;
 import com.damburisoft.android.yamalocationsrv.YamaLocationProviderConstants;
 
 import android.app.Service;
@@ -56,77 +57,7 @@ public class YamaLogService extends Service implements LocationListener,
 
     /** The timer posts a runnable to the main thread via this handler. */
     private final Handler handler = new Handler();
-
-    private TimerTask checkSensorValues = new TimerTask() {
-
-        @Override
-        public void run() {
-            mCurrentAzimuth = calcurateAzimuth();
-            if (mCurrentAzimuth == Double.NaN) {
-                Log.d(TAG, "cannot obtain azimuth.");
-                return;
-            }
-
-            if (mCurrentLocation == null) {
-                Log.d(TAG, "Location has not been settled by GPS.");
-                return;
-            }
-
-            String logString = createLogInfo();
-            try {
-                mFos.write(logString.getBytes());
-            } catch (IOException e) {
-                Log.e(TAG, e.toString());
-                e.printStackTrace();
-            }
-
-        }
-
-        private double calcurateAzimuth() {
-            final int MATRIX_SIZE = 16;
-            float[] inR = new float[MATRIX_SIZE];
-            float[] outR = new float[MATRIX_SIZE];
-            float[] I = new float[MATRIX_SIZE];
-            float[] orientationValues = new float[3];
-
-            if (magneticFieldValues == null || accelerometerValues == null) {
-                return Double.NaN;
-            }
-
-            SensorManager.getRotationMatrix(inR, I, accelerometerValues,
-                    magneticFieldValues);
-            SensorManager.remapCoordinateSystem(inR, SensorManager.AXIS_X,
-                    SensorManager.AXIS_Y, outR);
-            SensorManager.getOrientation(outR, orientationValues);
-
-            double azimuthDegree = Math.toDegrees(orientationValues[0]);
-            if (mGeomagneticField != null) {
-                azimuthDegree += mGeomagneticField.getDeclination();
-            }
-
-            while (azimuthDegree < 0.0) {
-                azimuthDegree += 360.0;
-            }
-
-            return azimuthDegree;
-        }
-
-        private String createLogInfo() {
-            StringBuffer sb = new StringBuffer();
-            sb.append(DateTimeUtilities.getDateAndTime());
-            sb.append((float) mCurrentLocation.getLongitude());
-            sb.append(",");
-            sb.append((float) mCurrentLocation.getLatitude());
-            sb.append(",");
-            sb.append((float) mCurrentLocation.getAccuracy());
-            sb.append(",");
-            sb.append((float) mCurrentAzimuth);
-            sb.append("\n");
-
-            return sb.toString();
-        }
-    };
-
+    private TimerTask checkSensorValues;
     private boolean ischeckSensorValuesRunning = false;
 
     /**
@@ -165,7 +96,6 @@ public class YamaLogService extends Service implements LocationListener,
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "YamaLogService.onBind");
-        // return mBinder;
         return binder;
     }
 
@@ -173,23 +103,19 @@ public class YamaLogService extends Service implements LocationListener,
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "YamaLogService.onCreate");
-
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        registerSensorEventListener();
-
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        registerLocationListener();
-        
         acquireWakeLock();
-
         isOnCreateCalled = true;
-
     }
-
+    
     @Override
     public void onStart(Intent intent, int startId) {
-        // TODO Auto-generated method stub
+        Log.d(TAG, "YamaLogService.onStart");
         super.onStart(intent, startId);
+        openLogFile();
+        registerSensorEventListener();
+        registerLocationListener();
     }
 
     @Override
@@ -199,6 +125,8 @@ public class YamaLogService extends Service implements LocationListener,
         }
         unregisterSensorEventListener();
         unregisterLocationListener();
+        closeLogFile();
+        stopTimerTask();
         super.onDestroy();
     }
 
@@ -251,8 +179,6 @@ public class YamaLogService extends Service implements LocationListener,
             accelerometerValues = event.values.clone();
         }
     }
-    
-    
 
     @Override
     public ComponentName startService(Intent service) {
@@ -296,6 +222,7 @@ public class YamaLogService extends Service implements LocationListener,
     }
 
     private void unregisterSensorEventListener() {
+        Log.d(TAG, "YamaLogService.unregisterSensorEventListener()");
         if (mSensorManager == null) {
             Log.e(TAG, "No Sensor Manager");
             return;
@@ -327,6 +254,7 @@ public class YamaLogService extends Service implements LocationListener,
     }
 
     private void unregisterLocationListener() {
+        Log.d(TAG, "YamaLogService.unregisterLocationListener()");
         if (mLocationManager == null) {
             Log.e(TAG, "YamaLogService: No Location Manager.");
             return;
@@ -337,15 +265,6 @@ public class YamaLogService extends Service implements LocationListener,
             isLocationListenerRegistered = false;
         }
 
-    }
-
-
-    public double getAzimuth() {
-        return mCurrentAzimuth;
-    }
-
-    public Location getCurrentLocation() {
-        return mCurrentLocation;
     }
 
     /**
@@ -380,7 +299,6 @@ public class YamaLogService extends Service implements LocationListener,
      */
 
     private final IYamaLogService.Stub binder = new IYamaLogService.Stub() {
-
         public boolean startLogService() throws RemoteException {
             boolean retValue = false;
             Log.d(TAG, "IYamaLogService.Stub.startLogService");
@@ -391,33 +309,18 @@ public class YamaLogService extends Service implements LocationListener,
             }
 
             retValue = registerLocationListener();
+            
+            openLogFile();
 
-            try {
-                mFos = openFileOutput(
-                        YamaLocationProviderConstants.logFileName, MODE_PRIVATE);
-            } catch (FileNotFoundException e) {
-                retValue = false;
-                e.printStackTrace();
-            }
-
+            createTimerTask();
+            
             mTimer = new Timer();
-
-            if (ischeckSensorValuesRunning) {
-                checkSensorValues.cancel();
-                ischeckSensorValuesRunning = false;
-            }
             mTimer.schedule(checkSensorValues, 0, 10 * 1000);
             ischeckSensorValuesRunning = true;
-
             /** 
              * After 2 min, check every minute that location listener still is
              * registered and spit out additional debugging info to the logs:
              */
-            // TODO determinate the interval for effective battery life.
-            if (ischeckLocationListenerRunning) {
-                checkLocationListener.cancel();
-                ischeckLocationListenerRunning = false;
-            }
             mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
             ischeckLocationListenerRunning = true;
 
@@ -425,34 +328,14 @@ public class YamaLogService extends Service implements LocationListener,
         }
 
         public void stopLogService() throws RemoteException {
-            // TODO Auto-generated method stub
-            Log.d(TAG, "YamaLogService.stopLogService");
+            Log.d(TAG, "IYamaLogService.Stub.stopLogService");
             unregisterSensorEventListener();
             unregisterLocationListener();
-
-            try {
-                if (mFos != null) {
-                    mFos.close();
-                }
-            } catch (IOException e) {
-                Log.e(TAG, e.toString());
-                e.printStackTrace();
-            } finally {
-                mFos = null;
-            }
-
-            checkSensorValues.cancel();
-            ischeckSensorValuesRunning = false;
-            checkLocationListener.cancel();
-            ischeckLocationListenerRunning = false;
-
-            if (mTimer != null) {
-                mTimer.cancel();
-                mTimer = null;
-            }
+            closeLogFile();
+            stopTimerTask();
         }
 
-        public boolean isMonitoring() throws RemoteException {
+        public boolean isSensorRunning() throws RemoteException {
             boolean retvalue = false;
             if (ischeckLocationListenerRunning && ischeckSensorValuesRunning) {
                 retvalue = true;
@@ -469,5 +352,168 @@ public class YamaLogService extends Service implements LocationListener,
         }
 
     };
+    
+    private void createTimerTask() {
+        if (ischeckSensorValuesRunning) {
+            checkSensorValues.cancel();
+            checkSensorValues = null;
+            ischeckSensorValuesRunning = false;
+        }
+        checkSensorValues = new TimerTask() {
+
+            @Override
+            public void run() {
+                long currentDateTime = (new Date()).getTime();
+                mCurrentAzimuth = calcurateAzimuth();
+                if (mCurrentAzimuth == Double.NaN) {
+                    Log.d(TAG, "cannot obtain azimuth.");
+                    return;
+                }
+
+                if (mCurrentLocation == null) {
+                    Log.d(TAG, "Location has not been settled by GPS.");
+                    return;
+                }
+
+                String logString = createLogInfo(currentDateTime);
+                try {
+                    mFos.write(logString.getBytes());
+                    // TODO determinate write logDate to SD.
+                } catch (IOException e) {
+                    Log.e(TAG, e.toString());
+                    e.printStackTrace();
+                }
+                
+                // TODO send data via HTTP.
+                YamaHttpClient httpClient = new YamaHttpClient(currentDateTime,
+                        mCurrentAzimuth, mCurrentLocation);
+                // httpClient.();
+
+            }
+
+            private double calcurateAzimuth() {
+                final int MATRIX_SIZE = 16;
+                float[] inR = new float[MATRIX_SIZE];
+                float[] outR = new float[MATRIX_SIZE];
+                float[] I = new float[MATRIX_SIZE];
+                float[] orientationValues = new float[3];
+
+                if (magneticFieldValues == null || accelerometerValues == null) {
+                    return Double.NaN;
+                }
+
+                SensorManager.getRotationMatrix(inR, I, accelerometerValues,
+                        magneticFieldValues);
+                SensorManager.remapCoordinateSystem(inR, SensorManager.AXIS_X,
+                        SensorManager.AXIS_Y, outR);
+                SensorManager.getOrientation(outR, orientationValues);
+
+                double azimuthDegree = Math.toDegrees(orientationValues[0]);
+                if (mGeomagneticField != null) {
+                    azimuthDegree += mGeomagneticField.getDeclination();
+                }
+
+                while (azimuthDegree < 0.0) {
+                    azimuthDegree += 360.0;
+                }
+
+                return azimuthDegree;
+            }
+
+            private String createLogInfo(long currentDateTime) {
+                StringBuffer sb = new StringBuffer();
+                sb.append(DateTimeUtilities.getDateAndTime(currentDateTime));
+                sb.append((float) mCurrentLocation.getLongitude());
+                sb.append(",");
+                sb.append((float) mCurrentLocation.getLatitude());
+                sb.append(",");
+                sb.append((float) mCurrentLocation.getAccuracy());
+                sb.append(",");
+                sb.append((float) mCurrentAzimuth);
+                sb.append("\n");
+
+                return sb.toString();
+            }
+        };
+
+        if (ischeckLocationListenerRunning) {
+            checkLocationListener.cancel();
+            checkLocationListener = null;
+            ischeckLocationListenerRunning = false;
+        }
+        
+        /**
+         * Task invoked by a timer periodically to make sure the location listener
+         * is still registered.
+         */
+        checkLocationListener = new TimerTask() {
+
+            @Override
+            public void run() {
+                if (!isOnCreateCalled) {
+                    Log.e(TAG,
+                            "TrackRecordingService is running, but onCreate not called.");
+                }
+
+                if (isLocationListenerRegistered) {
+                    handler.post(new Runnable() {
+                        public void run() {
+                            Log.d(TAG,
+                                    "Re-registering location listener with YamLogService.");
+                            unregisterLocationListener();
+                            registerLocationListener();
+                        }
+                    });
+                } else {
+                    Log.w(TAG,
+                            "Track recording service is paused. That should not be.");
+                }
+            }
+        };
+
+
+    }
+
+    private void stopTimerTask() {
+        if (checkSensorValues != null) {
+            checkSensorValues.cancel();
+            checkSensorValues = null;
+        }
+        ischeckSensorValuesRunning = false;
+        
+        if (checkLocationListener != null) {
+            checkLocationListener.cancel();
+            checkLocationListener = null;
+        }
+        ischeckLocationListenerRunning = false;
+
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer = null;
+        }
+    }
+    
+    private void openLogFile() {
+        try {
+            mFos = openFileOutput(
+                    YamaLocationProviderConstants.logFileName, MODE_PRIVATE);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "YamaLogService.openFileOutput: ", e);
+        }
+    }
+
+
+    private void closeLogFile() {
+        try {
+            if (mFos != null) {
+                mFos.close();
+            }
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
+        } finally {
+            mFos = null;
+        }
+    }
 
 }

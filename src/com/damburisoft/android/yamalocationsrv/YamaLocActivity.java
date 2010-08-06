@@ -57,17 +57,15 @@ public class YamaLocActivity extends MapActivity {
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             Log.d(TAG, "ServiceConnection.onServiceConnected");
-           
-            if (isYamaLogServiceRunning) {
-                return;
-            }
-            
             yamaLogService = IYamaLogService.Stub.asInterface(service);
+
             try {
-                yamaLogService.startLogService();
-                Toast.makeText(YamaLocActivity.this,
-                        R.string.status_now_logging, Toast.LENGTH_SHORT)
-                        .show();
+                if (!yamaLogService.isSensorRunning()) {
+                    yamaLogService.startLogService();
+                    Toast.makeText(YamaLocActivity.this,
+                            R.string.status_now_logging, Toast.LENGTH_SHORT)
+                            .show();
+                }
             } catch (RemoteException e) {
                 Toast.makeText(YamaLocActivity.this,
                         R.string.error_unable_to_start_logging,
@@ -78,6 +76,13 @@ public class YamaLocActivity extends MapActivity {
 
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "YamaLogActivity: Service now disconnected.");
+            try {
+                if (yamaLogService != null) {
+                    yamaLogService.stopLogService();
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             yamaLogService = null;
         }
 
@@ -92,10 +97,12 @@ public class YamaLocActivity extends MapActivity {
         mMapController = mMapView.getController();
         mMapController.setZoom(YamaLocationProviderConstants.defaultZoom);
         mMapView.setBuiltInZoomControls(true);
-        
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        isYamaLogServiceRunning = settings.getBoolean(YamaLocationProviderConstants.IsLoggingServiceRunning, false);
-        
+
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        isYamaLogServiceRunning = settings.getBoolean(
+                YamaLocationProviderConstants.IsLoggingServiceRunning, false);
+
         createRedrawHandler();
     }
 
@@ -105,29 +112,34 @@ public class YamaLocActivity extends MapActivity {
         if (isYamaLogServiceRunning) {
             tryUnbindLogService();
         }
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(YamaLocationProviderConstants.IsLoggingServiceRunning, isYamaLogServiceRunning);
+        editor.putBoolean(
+                YamaLocationProviderConstants.IsLoggingServiceRunning,
+                isYamaLogServiceRunning);
         editor.commit();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        isYamaLogServiceRunning = settings.getBoolean(YamaLocationProviderConstants.IsLoggingServiceRunning, false);
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        isYamaLogServiceRunning = settings.getBoolean(
+                YamaLocationProviderConstants.IsLoggingServiceRunning, false);
         if (isYamaLogServiceRunning) {
             tryBindLogService();
         }
     }
-    
-
 
     @Override
     protected void onDestroy() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(YamaLocationProviderConstants.IsLoggingServiceRunning, false);
+        editor.putBoolean(
+                YamaLocationProviderConstants.IsLoggingServiceRunning, false);
         editor.commit();
         super.onDestroy();
     }
@@ -147,7 +159,6 @@ public class YamaLocActivity extends MapActivity {
         } else {
             mi.setTitle(R.string.menu_start);
         }
-
         return true;
     }
 
@@ -158,7 +169,7 @@ public class YamaLocActivity extends MapActivity {
         case R.id.menu_startstop:
             if (!isYamaLogServiceRunning) {
                 startPollingService();
-            } else { 
+            } else {
                 stopPollingService();
             }
             retvalue = true;
@@ -177,7 +188,7 @@ public class YamaLocActivity extends MapActivity {
         case R.id.menu_preference:
             Intent intent = new Intent();
             intent.setClassName("com.damburisoft.android.yamalocationsrv",
-                    "com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity");
+                "com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity");
             startActivity(intent);
             retvalue = true;
             break;
@@ -187,9 +198,9 @@ public class YamaLocActivity extends MapActivity {
 
         return retvalue;
     }
-    
 
     private void createRedrawHandler() {
+        
         mRedrawHandler = new Handler() {
 
             @Override
@@ -227,8 +238,8 @@ public class YamaLocActivity extends MapActivity {
                     if (msg.arg1 == YamaLocationProviderConstants.UpdateInfo.LOCATION) {
                         Location loc = (Location) msg.obj;
                         GeoPoint gp = new GeoPoint(
-                                (int) (loc.getLatitude() * 1E6),
-                                (int) (loc.getLongitude() * 1E6));
+                                (int) (loc.getLatitude() * 1E6), (int) (loc
+                                        .getLongitude() * 1E6));
                         mMapController.animateTo(gp);
                         List<Overlay> overlays = mMapView.getOverlays();
                         if (mYamaMapOverlay != null) {
@@ -250,10 +261,8 @@ public class YamaLocActivity extends MapActivity {
         if (yamaLogService == null) {
             Intent startIntent = new Intent(YamaLocActivity.this,
                     YamaLogService.class);
-                    startService(startIntent);
-                    isYamaLogServiceRunning = tryBindLogService();
-        } else {
-            // TODO
+            startService(startIntent);
+            isYamaLogServiceRunning = tryBindLogService();
         }
 
         mTimer = new Timer();
@@ -265,7 +274,7 @@ public class YamaLocActivity extends MapActivity {
                 msg_time.arg1 = YamaLocationProviderConstants.UpdateInfo.DATETIME;
                 msg_time.obj = (Object) DateTimeUtilities.getDateAndTime();
                 mRedrawHandler.sendMessage(msg_time);
-                
+
                 if (yamaLogService == null) {
                     return;
                 }
@@ -279,7 +288,7 @@ public class YamaLocActivity extends MapActivity {
                         msg.obj = (Object) Double.toString(azimuth);
                         mRedrawHandler.sendMessage(msg);
                     }
-                        
+
                     Location loc = yamaLogService.getCurrentLocation();
                     if (loc != null) {
                         Message msg_tv = new Message();
@@ -303,7 +312,7 @@ public class YamaLocActivity extends MapActivity {
 
         mTimer.schedule(checkServiceValues, 0,
                 YamaLocationProviderConstants.PollingInterval);
-        
+
     }
 
     private void stopPollingService() {
@@ -324,9 +333,9 @@ public class YamaLocActivity extends MapActivity {
         try {
             stopService(new Intent(YamaLocActivity.this, YamaLogService.class));
         } catch (SecurityException e) {
-            Log.e(TAG,
+            Log.e(TAG, 
                     "Encountered a security exception when trying to stop service.",
-                    e);
+                     e);
         }
 
         yamaLogService = null;
@@ -369,17 +378,8 @@ public class YamaLocActivity extends MapActivity {
     }
 
     private boolean tryBindLogService() {
-        /*
-        if (isYamaLogServiceRunning) {
-            return true;
-        }
-        
-        return bindService(new Intent(this,    
-                YamaLogService.class), serviceConnection,
-                Context.BIND_AUTO_CREATE);
-                */
-        return bindService(new Intent(this,    
-                YamaLogService.class), serviceConnection, 0);
+        return bindService(new Intent(this, YamaLogService.class),
+                serviceConnection, 0);
     }
 
     private void tryUnbindLogService() {
@@ -391,7 +391,7 @@ public class YamaLocActivity extends MapActivity {
             Log.e(TAG, e.toString());
             e.printStackTrace();
         }
-        
+
     }
 
     private String getLocationStringForTextView(Location loc) {
