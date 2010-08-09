@@ -25,7 +25,7 @@ public class DateTimeUtilities {
     }
     
     public static final String getFilenameFromDateAndTime(Date date) {
-        DateFormat dfm = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+        SimpleDateFormat dfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
         return dfm.format(date);
     }
 }

@@ -384,11 +384,10 @@ public class YamaLogService extends Service implements LocationListener,
                     e.printStackTrace();
                 }
                 
-                // TODO send data via HTTP.
                 YamaHttpClient httpClient = new YamaHttpClient(currentDateTime,
                         mCurrentAzimuth, mCurrentLocation);
-                // httpClient.();
-
+                Thread th = new Thread(httpClient);
+                th.start();
             }
 
             private double calcurateAzimuth() {
@@ -514,6 +513,12 @@ public class YamaLogService extends Service implements LocationListener,
         } finally {
             mFos = null;
         }
+    }
+
+    public static double getBatteryLevel() {
+        // TODO Auto-generated method stub
+        // TODO implement here
+        return 1.0;
     }
 
 }

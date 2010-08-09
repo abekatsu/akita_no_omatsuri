@@ -36,4 +36,11 @@ public abstract class YamaLocationProviderConstants {
          */
         public static final int MSG_UNREGISTER_CLIENT = 1;
     };
+    
+    // Web Server
+    
+    // public static final String webServer = "192.168.11.101"; // TODO configurable via PreferenceActivity.
+    public static final String webServer = "192.168.1.206"; // TODO configurable via PreferenceActivity.
+    public static final int    webPort   = 8080;               // TODO configurable via PreferenceActivity.
+    
 }
