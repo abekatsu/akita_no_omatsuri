@@ -27,6 +27,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -59,7 +60,7 @@ public class YamaLogService extends Service implements LocationListener,
     private final Handler handler = new Handler();
     private TimerTask checkSensorValues;
     private boolean ischeckSensorValuesRunning = false;
-
+    
     /**
      * Task invoked by a timer periodically to make sure the location listener
      * is still registered.
@@ -113,9 +114,6 @@ public class YamaLogService extends Service implements LocationListener,
     public void onStart(Intent intent, int startId) {
         Log.d(TAG, "YamaLogService.onStart");
         super.onStart(intent, startId);
-        openLogFile();
-        registerSensorEventListener();
-        registerLocationListener();
     }
 
     @Override
@@ -247,8 +245,16 @@ public class YamaLogService extends Service implements LocationListener,
 
         Log.d(TAG,
                 "Preparing to register location listener with YamaLogService");
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                60 * 1000, 0, this);
+        HandlerThread th = new HandlerThread("GPS Thread");
+        th.start();
+        new Handler(th.getLooper()).post(new Runnable(){
+
+            public void run() {
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                        60 * 1000, 0, YamaLogService.this);
+            }
+        
+        });
         isLocationListenerRegistered = true;
         return true;
     }
@@ -300,18 +306,10 @@ public class YamaLogService extends Service implements LocationListener,
 
     private final IYamaLogService.Stub binder = new IYamaLogService.Stub() {
         public boolean startLogService() throws RemoteException {
-            boolean retValue = false;
             Log.d(TAG, "IYamaLogService.Stub.startLogService");
-            retValue = registerSensorEventListener();
-
-            if (!retValue) {
-                return false;
-            }
-
-            retValue = registerLocationListener();
-            
+            registerSensorEventListener();
+            registerLocationListener();
             openLogFile();
-
             createTimerTask();
             
             mTimer = new Timer();
@@ -323,8 +321,8 @@ public class YamaLogService extends Service implements LocationListener,
              */
             mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
             ischeckLocationListenerRunning = true;
-
-            return retValue;
+            
+            return true;
         }
 
         public void stopLogService() throws RemoteException {
@@ -349,6 +347,14 @@ public class YamaLogService extends Service implements LocationListener,
 
         public double getAzimuth() throws RemoteException {
             return mCurrentAzimuth;
+        }
+
+        public boolean isRunning() {
+            if (ischeckSensorValuesRunning && ischeckLocationListenerRunning) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
     };
@@ -470,7 +476,6 @@ public class YamaLogService extends Service implements LocationListener,
             }
         };
 
-
     }
 
     private void stopTimerTask() {
@@ -520,5 +525,6 @@ public class YamaLogService extends Service implements LocationListener,
         // TODO implement here
         return 1.0;
     }
+
 
 }

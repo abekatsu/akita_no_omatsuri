@@ -81,7 +81,7 @@ public class YamaHttpClient implements Runnable {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }  
-        
+
     }
     
     private String getDestinationStringURI() {

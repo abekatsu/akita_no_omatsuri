@@ -19,6 +19,7 @@
     <string name="status_now_logging">記録開始しました</string>
     <string name="error_unable_to_start_logging">記録起動に失敗しました</string>
     <string name="status_stop_logging">記録停止しました</string>
+    <string name="status_service_disconnected">記録停止しました</string>
 
     <string name="akita_no_omatrusi_preference_title">秋田のお祭り 設定画面</string>
     <string name="pref_neighborhood_title">町内会の設定</string>

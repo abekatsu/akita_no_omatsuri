@@ -34,5 +34,10 @@ interface IYamaLogService {
      * @return the current Location.
      */
     Location getCurrentLocation();
+    
+    /**
+     * Returns the service is running
+     */
+    boolean isRunning();
 
 }

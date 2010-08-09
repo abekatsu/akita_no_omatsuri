@@ -18,6 +18,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -59,31 +60,14 @@ public class YamaLocActivity extends MapActivity {
             Log.d(TAG, "ServiceConnection.onServiceConnected");
             yamaLogService = IYamaLogService.Stub.asInterface(service);
 
-            try {
-                if (!yamaLogService.isSensorRunning()) {
-                    yamaLogService.startLogService();
-                    Toast.makeText(YamaLocActivity.this,
-                            R.string.status_now_logging, Toast.LENGTH_SHORT)
-                            .show();
-                }
-            } catch (RemoteException e) {
-                Toast.makeText(YamaLocActivity.this,
-                        R.string.error_unable_to_start_logging,
-                        Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Unable to start logging", e);
-            }
         }
 
         public void onServiceDisconnected(ComponentName name) {
             Log.d(TAG, "YamaLogActivity: Service now disconnected.");
-            try {
-                if (yamaLogService != null) {
-                    yamaLogService.stopLogService();
-                }
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
             yamaLogService = null;
+            Toast.makeText(YamaLocActivity.this,
+                           R.string.status_service_disconnected,
+                           Toast.LENGTH_SHORT).show();
         }
 
     };
@@ -102,45 +86,33 @@ public class YamaLocActivity extends MapActivity {
                 .getDefaultSharedPreferences(this);
         isYamaLogServiceRunning = settings.getBoolean(
                 YamaLocationProviderConstants.IsLoggingServiceRunning, false);
-
+        
         createRedrawHandler();
+        
+        Intent startIntent = new Intent(YamaLocActivity.this,
+                YamaLogService.class);
+        startService(startIntent);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (isYamaLogServiceRunning) {
-            tryUnbindLogService();
-        }
-        SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(
-                YamaLocationProviderConstants.IsLoggingServiceRunning,
-                isYamaLogServiceRunning);
-        editor.commit();
+        tryUnbindLogService();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        isYamaLogServiceRunning = settings.getBoolean(
-                YamaLocationProviderConstants.IsLoggingServiceRunning, false);
-        if (isYamaLogServiceRunning) {
-            tryBindLogService();
-        }
+        tryBindLogService();
     }
 
     @Override
     protected void onDestroy() {
-        SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(
-                YamaLocationProviderConstants.IsLoggingServiceRunning, false);
-        editor.commit();
+        stopPollingService();
+        tryUnbindLogService();
+        Intent startIntent = new Intent(YamaLocActivity.this,
+                YamaLogService.class);
+        stopService(startIntent);
         super.onDestroy();
     }
 
@@ -154,10 +126,20 @@ public class YamaLocActivity extends MapActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem mi = menu.findItem(R.id.menu_startstop);
-        if (isYamaLogServiceRunning) {
-            mi.setTitle(R.string.menu_stop);
-        } else {
+        if (yamaLogService == null) {
+            Log.e(TAG, "YamaLogService is null");
             mi.setTitle(R.string.menu_start);
+        } else {
+            try {
+                if (yamaLogService.isRunning()) {
+                    mi.setTitle(R.string.menu_stop);
+                } else {
+                    mi.setTitle(R.string.menu_start);   
+                }
+            } catch (RemoteException e) {
+                Log.e(TAG, "onPrepareOptionsMenu: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
         return true;
     }
@@ -167,10 +149,20 @@ public class YamaLocActivity extends MapActivity {
         boolean retvalue;
         switch (item.getItemId()) {
         case R.id.menu_startstop:
-            if (!isYamaLogServiceRunning) {
+            if (yamaLogService == null) {
+                Log.e(TAG, "YamaLogService is null");
                 startPollingService();
             } else {
-                stopPollingService();
+                try {
+                    if (yamaLogService.isRunning()) {
+                        stopPollingService();
+                    } else {
+                        startPollingService();   
+                    }
+                } catch (RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
             retvalue = true;
             break;
@@ -200,6 +192,7 @@ public class YamaLocActivity extends MapActivity {
     }
 
     private void createRedrawHandler() {
+        Log.d(TAG, "YamaLogActivity.createRedrawHandler");
         
         mRedrawHandler = new Handler() {
 
@@ -259,10 +252,20 @@ public class YamaLocActivity extends MapActivity {
 
     private void startPollingService() {
         if (yamaLogService == null) {
-            Intent startIntent = new Intent(YamaLocActivity.this,
-                    YamaLogService.class);
-            startService(startIntent);
-            isYamaLogServiceRunning = tryBindLogService();
+            Log.e(TAG, "yamaLogService is null");
+            return ;
+        }
+
+        try {
+            yamaLogService.startLogService();
+            Toast.makeText(YamaLocActivity.this,
+                           R.string.status_now_logging, Toast.LENGTH_SHORT).show();
+
+        } catch (RemoteException e) {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(YamaLocActivity.this,
+                           R.string.error_unable_to_start_logging,
+                           Toast.LENGTH_SHORT).show();
         }
 
         mTimer = new Timer();
@@ -276,6 +279,7 @@ public class YamaLocActivity extends MapActivity {
                 mRedrawHandler.sendMessage(msg_time);
 
                 if (yamaLogService == null) {
+                    Log.e(TAG, "yamaLogService is null");
                     return;
                 }
 
@@ -330,16 +334,13 @@ public class YamaLocActivity extends MapActivity {
         mTimer = null;
 
         tryUnbindLogService();
-        try {
-            stopService(new Intent(YamaLocActivity.this, YamaLogService.class));
-        } catch (SecurityException e) {
-            Log.e(TAG, 
-                    "Encountered a security exception when trying to stop service.",
-                     e);
-        }
 
-        yamaLogService = null;
-        isYamaLogServiceRunning = false;
+        try {
+            yamaLogService.stopLogService();
+        } catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private void copyLogToSdCard() {
@@ -379,7 +380,7 @@ public class YamaLocActivity extends MapActivity {
 
     private boolean tryBindLogService() {
         return bindService(new Intent(this, YamaLogService.class),
-                serviceConnection, 0);
+                serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void tryUnbindLogService() {
