@@ -245,16 +245,21 @@ public class YamaLogService extends Service implements LocationListener,
 
         Log.d(TAG,
                 "Preparing to register location listener with YamaLogService");
+        
+        // TODO locationUpdate callback is not responeded.
         HandlerThread th = new HandlerThread("GPS Thread");
         th.start();
         new Handler(th.getLooper()).post(new Runnable(){
-
             public void run() {
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                         60 * 1000, 0, YamaLogService.this);
             }
         
         });
+
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                60 * 1000, 0, YamaLogService.this);
+
         isLocationListenerRegistered = true;
         return true;
     }

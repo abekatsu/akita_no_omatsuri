@@ -9,6 +9,6 @@
             android:dialogTitle="@string/neighborhood_associate_dialogtitle"
             android:entries="@array/neighborhood_associate_entries"
             android:entryValues="@array/neiglist_associate_values"
-            android:defaultValue="0" />
+            android:defaultValue="山根谷地町旭会若者" />
     </PreferenceCategory>
 </PreferenceScreen>

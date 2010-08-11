@@ -1,32 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <string-array name="neighborhood_associate_entries">
-        <item>A 町</item>
-        <item>B 町</item>
-        <item>C 町</item>
-        <item>D 町</item>
-        <item>E 町</item>
-        <item>F 町</item>
-        <item>G 町</item>
-        <item>H 町</item>
-        <item>I 町</item>
-        <item>J 町</item>
-        <item>K 町</item>
-        <item>L 町</item>
+        <item>山根谷地町旭会若者</item>
+        <item>横町若者</item>
+        <item>桜美町若者</item>
+        <item>上新町若者</item>
+        <item>七日町丁内</item>
+        <item>西勝楽町若者</item>
+        <item>中央通り</item>
+        <item>本町通り</item>
+        <item>下岩瀬町若者</item>
+        <item>菅沢丁内若者</item>
+        <item>東部若者</item>
+        <item>駅通り若者</item>
+        <item>駅前若者</item>
+        <item>岩瀬若者一同</item>
+        <item>大塚若者</item>
+        <item>西部若者</item>
+        <item>北部丁内若者</item>
+        <item>川原町若者</item>
+        <item>置山、他</item>
     </string-array>
 
     <string-array name="neiglist_associate_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
+        <item>山根谷地町旭会若者</item>
+        <item>横町若者</item>
+        <item>桜美町若者</item>
+        <item>上新町若者</item>
+        <item>七日町丁内</item>
+        <item>西勝楽町若者</item>
+        <item>中央通り</item>
+        <item>本町通り</item>
+        <item>下岩瀬町若者</item>
+        <item>菅沢丁内若者</item>
+        <item>東部若者</item>
+        <item>駅通り若者</item>
+        <item>駅前若者</item>
+        <item>岩瀬若者一同</item>
+        <item>大塚若者</item>
+        <item>西部若者</item>
+        <item>北部丁内若者</item>
+        <item>川原町若者</item>
+        <item>置山、他</item>
     </string-array>
 </resources>
+
