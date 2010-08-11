@@ -18,7 +18,8 @@ public class YamaPreferenceActivity extends PreferenceActivity {
     
     
     public static String getHikiyamaName() {
-        return mPreferences.getString("neighborhood_associate", "");
+        // return mPreferences.getString("neighborhood_associate", "山根谷地町旭会若者");
+        return "山根谷地町旭会若者";
     }
     
     public static int getHikiyamaID() {

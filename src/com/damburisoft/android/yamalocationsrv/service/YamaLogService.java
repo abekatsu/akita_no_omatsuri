@@ -128,6 +128,44 @@ public class YamaLogService extends Service implements LocationListener,
         super.onDestroy();
     }
 
+    private final LocationListener myLocationListener = new LocationListener() {
+
+        public void onLocationChanged(Location location) {
+            mCurrentLocation = location;
+            float latitude = new Double(location.getLatitude()).floatValue();
+            float longitude = new Double(location.getLongitude()).floatValue();
+            float altitude = new Double(location.getAltitude()).floatValue();
+            mGeomagneticField = new GeomagneticField(latitude, longitude, altitude,
+                    new Date().getTime());
+        }
+
+        public void onProviderDisabled(String provider) {
+            Log.d(TAG, "YamaLogService.onProviderDisabled: " + provider);
+        }
+
+        public void onProviderEnabled(String provider) {
+            Log.d(TAG, "YamaLogService.onProviderEnabled: " + provider);
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d(TAG, "YamaLogService.onStatusChanged: " + provider);
+            switch (status) {
+            case LocationProvider.OUT_OF_SERVICE:
+                Log.d(TAG, "Status: Out of service");
+                break;
+            case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                Log.d(TAG, "Status: Temporarily Available");
+                break;
+            case LocationProvider.AVAILABLE:
+                Log.d(TAG, "Status: Available");
+                break;
+            default:
+                Log.d(TAG, "Unknown Status" + status);
+            }
+        }
+        
+    };
+    
     
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
@@ -252,14 +290,10 @@ public class YamaLogService extends Service implements LocationListener,
         new Handler(th.getLooper()).post(new Runnable(){
             public void run() {
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                        60 * 1000, 0, YamaLogService.this);
+                        60 * 1000, 0, myLocationListener);
             }
         
         });
-
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                60 * 1000, 0, YamaLogService.this);
-
         isLocationListenerRegistered = true;
         return true;
     }
@@ -470,8 +504,8 @@ public class YamaLogService extends Service implements LocationListener,
                         public void run() {
                             Log.d(TAG,
                                     "Re-registering location listener with YamLogService.");
-                            unregisterLocationListener();
-                            registerLocationListener();
+                            // unregisterLocationListener();
+                            // registerLocationListener();
                         }
                     });
                 } else {
