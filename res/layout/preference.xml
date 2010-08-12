@@ -4,7 +4,7 @@
     <PreferenceCategory android:title="@string/akita_no_omatrusi_preference_title">
         <ListPreference
             android:key="neighborhood_associate"
-            android:defaultValue="@string/default_choumei" 
+            android:defaultValue="@string/default_choumei"
             android:title="@string/neighborhood_associate_title"
             android:summary="@string/neighborhood_associate_summary"
             android:dialogTitle="@string/neighborhood_associate_dialogtitle"
@@ -12,17 +12,4 @@
             android:entryValues="@array/neiglist_associate_values"
         />
     </PreferenceCategory>
-
-    <CheckBoxPreference
-        android:key="isLocalServer"
-        android:defaultValue="false"
-        android:title="@string/isLocalServer_title"
-        android:summary="@string/isLocalServer_summary"
-    />
-    
-    <EditTextPreference
-        android:key="test_local_server"
-        android:title="@string/test_local_server_title"
-        android:summary="@string/test_local_server_summary"
-    />
 </PreferenceScreen>

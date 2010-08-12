@@ -28,4 +28,11 @@
     <string name="neighborhood_associate_dialogtitle">Dialog Title (町内会)</string>
 
     <string name="default_choumei">ekimae</string>
+    
+    <string name="isLocalServer_title">Use local server.</string>
+    <string name="isLocalServer_summary">Use local server as the destination Web Server of posting data.</string>
+    
+    <string name="test_local_server_title">Local server\'s address</string>
+    <string name="test_local_server_summary">URI of local server for testing</string>
+    
 </resources>

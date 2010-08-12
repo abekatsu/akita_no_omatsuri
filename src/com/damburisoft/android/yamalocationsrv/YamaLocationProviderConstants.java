@@ -41,8 +41,13 @@ public abstract class YamaLocationProviderConstants {
     
     // public static final String webServer = "192.168.11.101"; // TODO configurable via PreferenceActivity.
     // public static final String webServer = "192.168.1.206"; // TODO configurable via PreferenceActivity.
-    public static final String webServer   = "http://labs2.netpersons.co.jp/omatsuri/kakunodate/locations.json";
-    public static final int    webPort   = 8080;               // TODO configurable via PreferenceActivity.
+    public static final String webServer   = "http://labs2.netpersons.co.jp/";
+    public static final String  webLocation = "omatsuri/kakunodate/";
+
+    public static final String testWebServer   = "http://192.168.1.102:8080/";
+    public static final String testWebLocation = "";
+    
+    public static final String jsonPost    = "location.json";
     
 }
 

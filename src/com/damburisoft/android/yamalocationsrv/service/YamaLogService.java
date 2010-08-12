@@ -13,7 +13,6 @@ import com.damburisoft.android.yamalocationsrv.YamaHttpClient;
 import com.damburisoft.android.yamalocationsrv.YamaLocationProviderConstants;
 
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.GeomagneticField;
@@ -34,7 +33,7 @@ import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
-public class YamaLogService extends Service implements SensorEventListener {
+public class YamaLogService extends Service {
 
     private static final String TAG = "YamaLogService";
 
@@ -59,7 +58,7 @@ public class YamaLogService extends Service implements SensorEventListener {
     private final Handler handler = new Handler();
     private TimerTask checkSensorValues;
     private boolean ischeckSensorValuesRunning = false;
-    
+
     /**
      * Task invoked by a timer periodically to make sure the location listener
      * is still registered.
@@ -108,7 +107,7 @@ public class YamaLogService extends Service implements SensorEventListener {
         acquireWakeLock();
         isOnCreateCalled = true;
     }
-    
+
     @Override
     public void onStart(Intent intent, int startId) {
         Log.d(TAG, "YamaLogService.onStart");
@@ -131,12 +130,14 @@ public class YamaLogService extends Service implements SensorEventListener {
 
         public void onLocationChanged(Location location) {
             Log.d(TAG, "myLocationListener.onLocationChanged()");
+            // TODO update された location がどの程度の精度か確認する。ひどければ　mCurrentLocation
+            // の内容を更新しない。
             mCurrentLocation = location;
             float latitude = new Double(location.getLatitude()).floatValue();
             float longitude = new Double(location.getLongitude()).floatValue();
             float altitude = new Double(location.getAltitude()).floatValue();
-            mGeomagneticField = new GeomagneticField(latitude, longitude, altitude,
-                    new Date().getTime());
+            mGeomagneticField = new GeomagneticField(latitude, longitude,
+                    altitude, new Date().getTime());
         }
 
         public void onProviderDisabled(String provider) {
@@ -163,73 +164,27 @@ public class YamaLogService extends Service implements SensorEventListener {
                 Log.d(TAG, "Unknown Status" + status);
             }
         }
-        
+
     };
-    
-    
-    public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
-        float latitude = new Double(location.getLatitude()).floatValue();
-        float longitude = new Double(location.getLongitude()).floatValue();
-        float altitude = new Double(location.getAltitude()).floatValue();
-        mGeomagneticField = new GeomagneticField(latitude, longitude, altitude,
-                new Date().getTime());
-    }
 
-    /*
-    public void onProviderDisabled(String provider) {
-        Log.d(TAG, "YamaLogService.onProviderDisabled: " + provider);
-    }
+    private final SensorEventListener mySensorEventListener = new SensorEventListener() {
 
-    public void onProviderEnabled(String provider) {
-        Log.d(TAG, "YamaLogService.onProviderEnabled: " + provider);
-    }
-
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d(TAG, "YamaLogService.onStatusChanged: " + provider);
-        switch (status) {
-        case LocationProvider.OUT_OF_SERVICE:
-            Log.d(TAG, "Status: Out of service");
-            break;
-        case LocationProvider.TEMPORARILY_UNAVAILABLE:
-            Log.d(TAG, "Status: Temporarily Available");
-            break;
-        case LocationProvider.AVAILABLE:
-            Log.d(TAG, "Status: Available");
-            break;
-        default:
-            Log.d(TAG, "Unknown Status" + status);
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            /*
+             * Log.d(TAG, "YamaLogService.onAccuracyChanged. sensor: " +
+             * sensor.getName() + ", accuracy :" + accuracy);
+             */
         }
-    }
 
-     */
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        /*
-         * Log.d(TAG, "YamaLogService.onAccuracyChanged. sensor: " +
-         * sensor.getName() + ", accuracy :" + accuracy);
-         */
-    }
-
-
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            magneticFieldValues = event.values.clone();
-        } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            accelerometerValues = event.values.clone();
+        public void onSensorChanged(SensorEvent event) {
+            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                magneticFieldValues = event.values.clone();
+            } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                accelerometerValues = event.values.clone();
+            }
         }
-    }
 
-    @Override
-    public ComponentName startService(Intent service) {
-        Log.d(TAG, "YamaLogService.startService");
-        return super.startService(service);
-    }
-
-    @Override
-    public boolean stopService(Intent name) {
-        Log.d(TAG, "YamaLogService.stopService");
-        return super.stopService(name);
-    }
+    };
 
     private boolean registerSensorEventListener() {
         if (mSensorManager == null) {
@@ -242,11 +197,11 @@ public class YamaLogService extends Service implements SensorEventListener {
         for (Sensor s : sensor_list) {
             if (s.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                 isMagneticFieldSensorRegistered = mSensorManager
-                        .registerListener(this, s,
+                        .registerListener(mySensorEventListener, s,
                                 SensorManager.SENSOR_DELAY_UI);
             } else if (s.getType() == Sensor.TYPE_ACCELEROMETER) {
                 isAccelerometerSensorRegistered = mSensorManager
-                        .registerListener(this, s,
+                        .registerListener(mySensorEventListener, s,
                                 SensorManager.SENSOR_DELAY_UI);
             }
         }
@@ -268,12 +223,12 @@ public class YamaLogService extends Service implements SensorEventListener {
         }
 
         if (isMagneticFieldSensorRegistered) {
-            mSensorManager.unregisterListener(this);
+            mSensorManager.unregisterListener(mySensorEventListener);
             isMagneticFieldSensorRegistered = false;
         }
 
         if (isAccelerometerSensorRegistered) {
-            mSensorManager.unregisterListener(this);
+            mSensorManager.unregisterListener(mySensorEventListener);
             isAccelerometerSensorRegistered = false;
         }
     }
@@ -286,16 +241,16 @@ public class YamaLogService extends Service implements SensorEventListener {
 
         Log.d(TAG,
                 "Preparing to register location listener with YamaLogService");
-        
-        // TODO locationUpdate callback is not responeded.
+
         HandlerThread th = new HandlerThread("GPS Thread");
         th.start();
-        new Handler(th.getLooper()).post(new Runnable(){
+        new Handler(th.getLooper()).post(new Runnable() {
             public void run() {
-                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                        60 * 1000, 0, myLocationListener);
+                mLocationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, 60 * 1000, 0,
+                        myLocationListener);
             }
-        
+
         });
         isLocationListenerRegistered = true;
         return true;
@@ -323,17 +278,18 @@ public class YamaLogService extends Service implements SensorEventListener {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (pm == null) {
             Log.e(TAG, "No Pawer Management found.");
-            return ;
+            return;
         }
-        
+
         if (mWakeLock == null) {
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock of YamaLogService");
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    "WakeLock of YamaLogService");
             if (mWakeLock == null) {
                 Log.e(TAG, "Could not create wake lock (null).");
-                return ;
+                return;
             }
         }
-        
+
         if (!mWakeLock.isHeld()) {
             mWakeLock.acquire();
             if (!mWakeLock.isHeld()) {
@@ -341,7 +297,7 @@ public class YamaLogService extends Service implements SensorEventListener {
             }
         }
     }
-    
+
     /**
      * The IYamaLogService is defined through IDL.
      */
@@ -353,17 +309,20 @@ public class YamaLogService extends Service implements SensorEventListener {
             registerLocationListener();
             openLogFile();
             createTimerTask();
-            
+
             mTimer = new Timer();
-            mTimer.schedule(checkSensorValues, 0, 10 * 1000);
+            // TODO create Constants
+            mTimer.schedule(checkSensorValues, 0, 60 * 1000);
             ischeckSensorValuesRunning = true;
-            /** 
+
+            /**
              * After 2 min, check every minute that location listener still is
              * registered and spit out additional debugging info to the logs:
              */
+            // TODO create Constants
             mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
             ischeckLocationListenerRunning = true;
-            
+
             return true;
         }
 
@@ -400,7 +359,7 @@ public class YamaLogService extends Service implements SensorEventListener {
         }
 
     };
-    
+
     private void createTimerTask() {
         if (ischeckSensorValuesRunning) {
             checkSensorValues.cancel();
@@ -420,8 +379,8 @@ public class YamaLogService extends Service implements SensorEventListener {
 
                 if (mCurrentLocation == null) {
                     Log.d(TAG, "Location has not been settled by GPS.");
-                    mCurrentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    // return;
+                    mCurrentLocation = mLocationManager
+                            .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
 
                 String logString = createLogInfo(currentDateTime);
@@ -432,7 +391,7 @@ public class YamaLogService extends Service implements SensorEventListener {
                     Log.e(TAG, e.toString());
                     e.printStackTrace();
                 }
-                
+
                 YamaHttpClient httpClient = new YamaHttpClient(currentDateTime,
                         mCurrentAzimuth, mCurrentLocation);
                 Thread th = new Thread(httpClient);
@@ -489,10 +448,10 @@ public class YamaLogService extends Service implements SensorEventListener {
             checkLocationListener = null;
             ischeckLocationListenerRunning = false;
         }
-        
+
         /**
-         * Task invoked by a timer periodically to make sure the location listener
-         * is still registered.
+         * Task invoked by a timer periodically to make sure the location
+         * listener is still registered.
          */
         checkLocationListener = new TimerTask() {
 
@@ -527,7 +486,7 @@ public class YamaLogService extends Service implements SensorEventListener {
             checkSensorValues = null;
         }
         ischeckSensorValuesRunning = false;
-        
+
         if (checkLocationListener != null) {
             checkLocationListener.cancel();
             checkLocationListener = null;
@@ -539,16 +498,15 @@ public class YamaLogService extends Service implements SensorEventListener {
             mTimer = null;
         }
     }
-    
+
     private void openLogFile() {
         try {
-            mFos = openFileOutput(
-                    YamaLocationProviderConstants.logFileName, MODE_PRIVATE);
+            mFos = openFileOutput(YamaLocationProviderConstants.logFileName,
+                    MODE_PRIVATE);
         } catch (FileNotFoundException e) {
             Log.e(TAG, "YamaLogService.openFileOutput: ", e);
         }
     }
-
 
     private void closeLogFile() {
         try {
@@ -568,6 +526,5 @@ public class YamaLogService extends Service implements SensorEventListener {
         // TODO implement here
         return 1.0;
     }
-
 
 }
