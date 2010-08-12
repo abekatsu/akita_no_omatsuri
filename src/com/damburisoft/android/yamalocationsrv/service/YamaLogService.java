@@ -34,8 +34,7 @@ import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
-public class YamaLogService extends Service implements LocationListener,
-        SensorEventListener {
+public class YamaLogService extends Service implements SensorEventListener {
 
     private static final String TAG = "YamaLogService";
 
@@ -131,6 +130,7 @@ public class YamaLogService extends Service implements LocationListener,
     private final LocationListener myLocationListener = new LocationListener() {
 
         public void onLocationChanged(Location location) {
+            Log.d(TAG, "myLocationListener.onLocationChanged()");
             mCurrentLocation = location;
             float latitude = new Double(location.getLatitude()).floatValue();
             float longitude = new Double(location.getLongitude()).floatValue();
@@ -176,6 +176,7 @@ public class YamaLogService extends Service implements LocationListener,
                 new Date().getTime());
     }
 
+    /*
     public void onProviderDisabled(String provider) {
         Log.d(TAG, "YamaLogService.onProviderDisabled: " + provider);
     }
@@ -201,12 +202,14 @@ public class YamaLogService extends Service implements LocationListener,
         }
     }
 
+     */
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         /*
          * Log.d(TAG, "YamaLogService.onAccuracyChanged. sensor: " +
          * sensor.getName() + ", accuracy :" + accuracy);
          */
     }
+
 
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
@@ -306,7 +309,7 @@ public class YamaLogService extends Service implements LocationListener,
         }
 
         if (isLocationListenerRegistered) {
-            mLocationManager.removeUpdates(this);
+            mLocationManager.removeUpdates(myLocationListener);
             isLocationListenerRegistered = false;
         }
 
@@ -417,7 +420,8 @@ public class YamaLogService extends Service implements LocationListener,
 
                 if (mCurrentLocation == null) {
                     Log.d(TAG, "Location has not been settled by GPS.");
-                    return;
+                    mCurrentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    // return;
                 }
 
                 String logString = createLogInfo(currentDateTime);

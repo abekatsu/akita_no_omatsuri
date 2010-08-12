@@ -88,13 +88,12 @@ public class YamaHttpClient implements Runnable {
     
     private String getDestinationStringURI() {
         StringBuffer sb = new StringBuffer();
+        // TODO must refer to PreferencesManager.
         
-        sb.append("http://");
+        // TODO Specification 
+        // http://labs2.netpersons.co.jp/omatsuri/kakunodate/sugazawa/location.json
+        // - sugazawa を 町内のIDにreplace して post
         sb.append(YamaLocationProviderConstants.webServer);
-        sb.append(":");
-        sb.append(YamaLocationProviderConstants.webPort);
-        sb.append("/");
-        
         return sb.toString();
     }
 

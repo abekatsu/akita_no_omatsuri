@@ -151,19 +151,21 @@ public class YamaLocActivity extends MapActivity {
         case R.id.menu_startstop:
             if (yamaLogService == null) {
                 Log.e(TAG, "YamaLogService is null");
-                startPollingService();
-            } else {
-                try {
-                    if (yamaLogService.isRunning()) {
-                        stopPollingService();
-                    } else {
-                        startPollingService();   
-                    }
-                } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                retvalue = true;
+                break;
+            } 
+
+            try {
+                if (yamaLogService.isRunning()) {
+                    stopPollingService();
+                } else {
+                    startPollingService();   
                 }
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
+
             retvalue = true;
             break;
         case R.id.menu_save:
