@@ -70,13 +70,10 @@ public class YamaHttpClient implements Runnable {
             // HTTP BODY: jsonデータをセットする
             HttpEntity entity = new StringEntity(sendObject.toString());
             httpPost.setEntity(entity);
-            HttpResponse objResponse = objHttp.execute(httpPost);
+            // HttpResponse objResponse = objHttp.execute(httpPost);
             // 戻りSTATUS: 201 (Created) 
-            Log.d(TAG, "HttpResponse: " + objResponse.toString());
+            // Log.d(TAG, "HttpResponse: " + objResponse.toString());
         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {

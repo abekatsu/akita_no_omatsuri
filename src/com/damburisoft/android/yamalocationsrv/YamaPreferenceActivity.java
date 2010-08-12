@@ -12,14 +12,14 @@ public class YamaPreferenceActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.layout.preference);
+        addPreferencesFromResource(R.xml.preference);
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
     
     
     public static String getHikiyamaName() {
-        // return mPreferences.getString("neighborhood_associate", "山根谷地町旭会若者");
-        return "山根谷地町旭会若者";
+        return mPreferences.getString("neighborhood_associate", "山根谷地町旭会若者");
+        // return "山根谷地町旭会若者";
     }
     
     public static int getHikiyamaID() {

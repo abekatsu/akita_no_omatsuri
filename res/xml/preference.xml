@@ -4,11 +4,12 @@
     <PreferenceCategory android:title="@string/akita_no_omatrusi_preference_title">
         <ListPreference
             android:key="neighborhood_associate"
+            android:defaultValue="@string/default_choumei" 
             android:title="@string/neighborhood_associate_title"
             android:summary="@string/neighborhood_associate_summary"
             android:dialogTitle="@string/neighborhood_associate_dialogtitle"
             android:entries="@array/neighborhood_associate_entries"
             android:entryValues="@array/neiglist_associate_values"
-            android:defaultValue="山根谷地町旭会若者" />
+        />
     </PreferenceCategory>
 </PreferenceScreen>

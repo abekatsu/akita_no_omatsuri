@@ -27,4 +27,5 @@
     <string name="neighborhood_associate_summary">summary</string>
     <string name="neighborhood_associate_dialogtitle">Dialog Title (町内会)</string>
 
+    <string name="default_choumei">ekimae</string>
 </resources>
