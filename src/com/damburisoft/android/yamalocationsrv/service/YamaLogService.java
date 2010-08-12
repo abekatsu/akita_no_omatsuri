@@ -44,7 +44,6 @@ public class YamaLogService extends Service {
     private LocationManager mLocationManager = null;
     private GeomagneticField mGeomagneticField = null;
 
-    private boolean isOnCreateCalled = false;
     private boolean isMagneticFieldSensorRegistered = false;
     private boolean isAccelerometerSensorRegistered = false;
     private boolean isLocationListenerRegistered = false;
@@ -55,40 +54,8 @@ public class YamaLogService extends Service {
     private Location mCurrentLocation = null;
 
     /** The timer posts a runnable to the main thread via this handler. */
-    private final Handler handler = new Handler();
     private TimerTask checkSensorValues;
     private boolean ischeckSensorValuesRunning = false;
-
-    /**
-     * Task invoked by a timer periodically to make sure the location listener
-     * is still registered.
-     */
-    private TimerTask checkLocationListener = new TimerTask() {
-
-        @Override
-        public void run() {
-            if (!isOnCreateCalled) {
-                Log.e(TAG,
-                        "TrackRecordingService is running, but onCreate not called.");
-            }
-
-            if (isLocationListenerRegistered) {
-                handler.post(new Runnable() {
-                    public void run() {
-                        Log.d(TAG,
-                                "Re-registering location listener with YamLogService.");
-                        unregisterLocationListener();
-                        registerLocationListener();
-                    }
-                });
-            } else {
-                Log.w(TAG,
-                        "Track recording service is paused. That should not be.");
-            }
-        }
-    };
-
-    private boolean ischeckLocationListenerRunning = false;
 
     private WakeLock mWakeLock;
 
@@ -105,7 +72,6 @@ public class YamaLogService extends Service {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         acquireWakeLock();
-        isOnCreateCalled = true;
     }
 
     @Override
@@ -315,14 +281,6 @@ public class YamaLogService extends Service {
             mTimer.schedule(checkSensorValues, 0, 60 * 1000);
             ischeckSensorValuesRunning = true;
 
-            /**
-             * After 2 min, check every minute that location listener still is
-             * registered and spit out additional debugging info to the logs:
-             */
-            // TODO create Constants
-            mTimer.schedule(checkLocationListener, 1000 * 60 * 2, 1000 * 60);
-            ischeckLocationListenerRunning = true;
-
             return true;
         }
 
@@ -335,11 +293,7 @@ public class YamaLogService extends Service {
         }
 
         public boolean isSensorRunning() throws RemoteException {
-            boolean retvalue = false;
-            if (ischeckLocationListenerRunning && ischeckSensorValuesRunning) {
-                retvalue = true;
-            }
-            return retvalue;
+            return ischeckSensorValuesRunning;
         }
 
         public Location getCurrentLocation() throws RemoteException {
@@ -351,11 +305,7 @@ public class YamaLogService extends Service {
         }
 
         public boolean isRunning() {
-            if (ischeckSensorValuesRunning && ischeckLocationListenerRunning) {
-                return true;
-            } else {
-                return false;
-            }
+            return ischeckSensorValuesRunning;
         }
 
     };
@@ -443,41 +393,6 @@ public class YamaLogService extends Service {
             }
         };
 
-        if (ischeckLocationListenerRunning) {
-            checkLocationListener.cancel();
-            checkLocationListener = null;
-            ischeckLocationListenerRunning = false;
-        }
-
-        /**
-         * Task invoked by a timer periodically to make sure the location
-         * listener is still registered.
-         */
-        checkLocationListener = new TimerTask() {
-
-            @Override
-            public void run() {
-                if (!isOnCreateCalled) {
-                    Log.e(TAG,
-                            "TrackRecordingService is running, but onCreate not called.");
-                }
-
-                if (isLocationListenerRegistered) {
-                    handler.post(new Runnable() {
-                        public void run() {
-                            Log.d(TAG,
-                                    "Re-registering location listener with YamLogService.");
-                            // unregisterLocationListener();
-                            // registerLocationListener();
-                        }
-                    });
-                } else {
-                    Log.w(TAG,
-                            "Track recording service is paused. That should not be.");
-                }
-            }
-        };
-
     }
 
     private void stopTimerTask() {
@@ -486,12 +401,6 @@ public class YamaLogService extends Service {
             checkSensorValues = null;
         }
         ischeckSensorValuesRunning = false;
-
-        if (checkLocationListener != null) {
-            checkLocationListener.cancel();
-            checkLocationListener = null;
-        }
-        ischeckLocationListenerRunning = false;
 
         if (mTimer != null) {
             mTimer.cancel();
