@@ -1,47 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <string-array name="neighborhood_associate_entries">
+        <item>菅沢丁内若者</item>
+        <item>本町通り</item>
+        <item>西勝楽町若者</item>
         <item>山根谷地町旭会若者</item>
         <item>横町若者</item>
         <item>桜美町若者</item>
-        <item>上新町若者</item>
-        <item>七日町丁内</item>
-        <item>西勝楽町若者</item>
-        <item>中央通り</item>
-        <item>本町通り</item>
-        <item>下岩瀬町若者</item>
-        <item>菅沢丁内若者</item>
+    	<item>上新町若者</item>
+    	<item>七日町丁内</item>
+    	<item>中央通り</item>
         <item>東部若者</item>
         <item>駅通り若者</item>
         <item>駅前若者</item>
+    	<item>岩瀬若者一同</item>
+    	<item>大塚若者</item>
+    	<item>西部若者</item>
         <item>岩瀬若者一同</item>
-        <item>大塚若者</item>
-        <item>西部若者</item>
         <item>北部丁内若者</item>
         <item>川原町若者</item>
-        <item>置山、他</item>
+        <item>下岩瀬町若者</item>
     </string-array>
 
     <string-array name="neiglist_associate_values">
-        <item>山根谷地町旭会若者</item>
-        <item>横町若者</item>
-        <item>桜美町若者</item>
-        <item>上新町若者</item>
-        <item>七日町丁内</item>
-        <item>西勝楽町若者</item>
-        <item>中央通り</item>
-        <item>本町通り</item>
-        <item>下岩瀬町若者</item>
-        <item>菅沢丁内若者</item>
-        <item>東部若者</item>
-        <item>駅通り若者</item>
-        <item>駅前若者</item>
-        <item>岩瀬若者一同</item>
-        <item>大塚若者</item>
-        <item>西部若者</item>
-        <item>北部丁内若者</item>
-        <item>川原町若者</item>
-        <item>置山、他</item>
+        <item>sugazawa</item>
+        <item>honcho</item>
+        <item>nishikatsuraku</item>
+        <item>yamane</item>
+        <item>yokomachi</item>
+        <item>sakuramicho</item>
+        <item>kamishinmachi</item>
+        <item>nanokamachi</item>
+        <item>chuo</item>
+        <item>tobu</item>
+        <item>ekidori</item>
+        <item>ekimae</item>
+        <item>iwase</item>
+        <item>otsuka</item>
+        <item>seibu</item>
+        <item>hokubu</item>
+        <item>kawaramachi</item>
+        <item>shimoiwase</item>
     </string-array>
 </resources>
 
