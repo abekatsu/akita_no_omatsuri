@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
@@ -21,12 +22,24 @@ public class YamaPreferenceActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preference);
-        EditTextPreference editTextPreference = (EditTextPreference)findPreference("test_local_server");
-        editTextPreference.setDefaultValue(YamaLocationProviderConstants.testWebServer);
+        
+        setDefaultValuesForPreferences();
         
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mResources = getResources();
         defaultHikiyamaName = getString(R.string.default_choumei);
+    }
+    
+    private void setDefaultValuesForPreferences() {
+        StringBuffer sb;
+        EditTextPreference editTextPreference = (EditTextPreference)findPreference("test_local_server");
+        editTextPreference.setDefaultValue(YamaLocationProviderConstants.testWebServer);
+        
+        sb = new StringBuffer();
+        ListPreference pollingIntervalListPreference = (ListPreference)findPreference("polling_interval");
+        sb.append(YamaLocationProviderConstants.defaultPollingIntervale);
+        pollingIntervalListPreference.setDefaultValue(sb.toString());
+        sb = null;
     }
     
     public static String getHikiyamaName() {
@@ -59,6 +72,13 @@ public class YamaPreferenceActivity extends PreferenceActivity {
             sb.append(YamaLocationProviderConstants.jsonPost);
         }
         return sb.toString();
+    }
+
+    public static long getPollingInterval() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(YamaLocationProviderConstants.defaultPollingIntervale);
+        String pollingIntStr = mPreferences.getString("polling_interval", sb.toString());
+        return Long.parseLong(pollingIntStr);
     }
 
 }

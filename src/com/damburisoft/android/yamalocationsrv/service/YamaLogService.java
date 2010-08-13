@@ -11,6 +11,7 @@ import java.util.TimerTask;
 import com.damburisoft.android.yamalocationsrv.DateTimeUtilities;
 import com.damburisoft.android.yamalocationsrv.YamaHttpClient;
 import com.damburisoft.android.yamalocationsrv.YamaLocationProviderConstants;
+import com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity;
 
 import android.app.Service;
 import android.content.Context;
@@ -277,8 +278,8 @@ public class YamaLogService extends Service {
             createTimerTask();
 
             mTimer = new Timer();
-            // TODO create Constants
-            mTimer.schedule(checkSensorValues, 0, 60 * 1000);
+            // TODO review
+            mTimer.schedule(checkSensorValues, 0, YamaPreferenceActivity.getPollingInterval());
             ischeckSensorValuesRunning = true;
 
             return true;

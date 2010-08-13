@@ -41,5 +41,24 @@
         <item>kawaramachi</item>
         <item>shimoiwase</item>
     </string-array>
+    
+    <string-array name="polling_interval_entries">
+        <item> 5 sec</item>
+        <item>30 sec</item>
+        <item>60 sec (Default)</item>
+        <item> 2 min</item>
+        <item> 5 min</item>
+        <item>10 min</item>        
+    </string-array>
+    
+    <string-array name="polling_interval_values">
+        <item>5000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>300000</item>
+        <item>600000</item>
+    </string-array>
+    
 </resources>
 

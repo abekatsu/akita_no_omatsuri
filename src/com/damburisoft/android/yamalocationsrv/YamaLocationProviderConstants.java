@@ -49,5 +49,7 @@ public abstract class YamaLocationProviderConstants {
     
     public static final String jsonPost    = "location.json";
     
+    public static final long defaultPollingIntervale = 60 * 1000; // 60 sec.
+    
 }
 

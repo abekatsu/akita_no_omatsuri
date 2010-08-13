@@ -35,4 +35,8 @@
     <string name="test_local_server_title">Local server\'s address</string>
     <string name="test_local_server_summary">URI of local server for testing</string>
     
+    <string name="polling_interval_title">Polling Interval</string>
+    <string name="polling_interval_summary">sepcify interval to poll and push data.</string>
+    <string name="polling_interval_dialogtitle">Set Polling Interval</string>
+    
 </resources>

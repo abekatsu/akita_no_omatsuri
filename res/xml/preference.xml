@@ -1,28 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/akita_no_omatrusi_preference_title">
-        <ListPreference
+        <ListPreference 
             android:key="neighborhood_associate"
-            android:defaultValue="@string/default_choumei" 
+            android:defaultValue="@string/default_choumei"
             android:title="@string/neighborhood_associate_title"
             android:summary="@string/neighborhood_associate_summary"
             android:dialogTitle="@string/neighborhood_associate_dialogtitle"
             android:entries="@array/neighborhood_associate_entries"
-            android:entryValues="@array/neiglist_associate_values"
-        />
-    </PreferenceCategory>
+            android:entryValues="@array/neiglist_associate_values" />
 
-    <CheckBoxPreference
-        android:key="isLocalServer"
-        android:defaultValue="false"
-        android:title="@string/isLocalServer_title"
-        android:summary="@string/isLocalServer_summary"
-    />
-    
-    <EditTextPreference
-        android:key="test_local_server"
-        android:title="@string/test_local_server_title"
-        android:summary="@string/test_local_server_summary"
-    />
+        <CheckBoxPreference 
+            android:key="isLocalServer"
+            android:defaultValue="false" 
+            android:title="@string/isLocalServer_title"
+            android:summary="@string/isLocalServer_summary" />
+
+        <EditTextPreference 
+            android:key="test_local_server"
+            android:title="@string/test_local_server_title"
+            android:summary="@string/test_local_server_summary" />
+
+        <ListPreference 
+            android:key="polling_interval"
+            android:title="@string/polling_interval_title"
+            android:summary="@string/polling_interval_summary"
+            android:dialogTitle="@string/polling_interval_dialogtitle"
+            android:entries="@array/polling_interval_entries"
+            android:entryValues="@array/polling_interval_values" />
+        />        
+
+    </PreferenceCategory>
 </PreferenceScreen>
