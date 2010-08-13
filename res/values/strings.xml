@@ -39,4 +39,12 @@
     <string name="polling_interval_summary">sepcify interval to poll and push data.</string>
     <string name="polling_interval_dialogtitle">Set Polling Interval</string>
     
+    <string name="gps_update_minDistance_title">Min Distace for GPS update.</string>
+    <string name="gps_update_minDistance_summary">Min distance for GPS manager updating</string>
+    <string name="gps_update_minDistance_dialogtitle">Minimal distace for updateing</string>
+    
+    <string name="default_test_local_server">http://192.168.1.102:8080/</string>
+    <string name="default_polling_interval">60000</string>
+    <string name="default_gps_update_minDistance">5.0</string>
+    
 </resources>

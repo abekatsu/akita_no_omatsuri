@@ -214,7 +214,9 @@ public class YamaLogService extends Service {
         new Handler(th.getLooper()).post(new Runnable() {
             public void run() {
                 mLocationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER, 60 * 1000, 0,
+                        LocationManager.GPS_PROVIDER, 
+                        YamaPreferenceActivity.getPollingInterval(), 
+                        (float)YamaPreferenceActivity.getGpsUpdateMinDistance(),
                         myLocationListener);
             }
 
@@ -278,7 +280,6 @@ public class YamaLogService extends Service {
             createTimerTask();
 
             mTimer = new Timer();
-            // TODO review
             mTimer.schedule(checkSensorValues, 0, YamaPreferenceActivity.getPollingInterval());
             ischeckSensorValuesRunning = true;
 

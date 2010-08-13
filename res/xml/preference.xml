@@ -18,17 +18,27 @@
 
         <EditTextPreference 
             android:key="test_local_server"
+            android:defaultValue="@string/default_test_local_server"
             android:title="@string/test_local_server_title"
             android:summary="@string/test_local_server_summary" />
 
         <ListPreference 
             android:key="polling_interval"
+            android:defaultValue="@string/default_polling_interval"
             android:title="@string/polling_interval_title"
             android:summary="@string/polling_interval_summary"
             android:dialogTitle="@string/polling_interval_dialogtitle"
             android:entries="@array/polling_interval_entries"
             android:entryValues="@array/polling_interval_values" />
-        />        
+
+        <ListPreference
+            android:key="gps_update_minDistance"
+            android:defaultValue="@string/default_gps_update_minDistance"
+            android:title="@string/gps_update_minDistance_title"
+            android:summary="@string/gps_update_minDistance_summary"
+            android:dialogTitle="@string/gps_update_minDistance_dialogtitle"
+            android:entries="@array/gps_update_minDistance_entries"
+            android:entryValues="@array/gps_update_minDistance_values" />
 
     </PreferenceCategory>
 </PreferenceScreen>
