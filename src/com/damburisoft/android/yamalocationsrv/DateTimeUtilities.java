@@ -1,6 +1,5 @@
 package com.damburisoft.android.yamalocationsrv;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -16,7 +15,8 @@ public class DateTimeUtilities {
     }
     
     public static final String getDateAndTime(Date date) {
-        return DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(date);
+        SimpleDateFormat dfm = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); 
+        return dfm.format(date);
     }
     
     public static final String getFilenameFromDateAndTime() {
@@ -25,7 +25,7 @@ public class DateTimeUtilities {
     }
     
     public static final String getFilenameFromDateAndTime(Date date) {
-        SimpleDateFormat dfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+        SimpleDateFormat dfm = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss"); 
         return dfm.format(date);
     }
 }

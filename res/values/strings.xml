@@ -50,6 +50,7 @@
     <string name="default_test_local_server">http://192.168.1.102:8080/</string>
     <string name="default_polling_interval">60000</string>
     <string name="default_gps_update_minDistance">5.0</string>
-    <string name="default_gps_min_required_accuracy">200.0</string>    
+    <string name="default_gps_min_required_accuracy">200.0</string>
+    <string name="default_omatsuri_name">kakunodate</string>
     
 </resources>

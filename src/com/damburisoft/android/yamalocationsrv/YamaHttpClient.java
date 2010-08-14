@@ -3,8 +3,10 @@ package com.damburisoft.android.yamalocationsrv;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -12,6 +14,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Build;
 import android.util.Log;
@@ -25,10 +28,12 @@ public class YamaHttpClient implements Runnable {
     private long mDateTime;
     private double mAzimuth;
     private Location mLocation;
+    private Context mContext;
 
-    public YamaHttpClient(long datetime, double azimuth, Location location) {
+    public YamaHttpClient(Context context,long datetime, double azimuth, Location location) {
+        mContext  = context;
         mDateTime = datetime;
-        mAzimuth = azimuth;
+        mAzimuth  = azimuth;
         mLocation = location;
     }
 
@@ -45,11 +50,9 @@ public class YamaHttpClient implements Runnable {
             valueObj.put("timestamp",
                     DateTimeUtilities.getDateAndTime(mDateTime));
             valueObj.put("battery_level", YamaLogService.getBatteryLevel());
-            valueObj.put("id", 1);
-            valueObj.put("hikiyama_id", YamaPreferenceActivity.getHikiyamaID());
-            valueObj.put("hikiyama_name",
-                    YamaPreferenceActivity.getHikiyamaName());
             retObj.put("location", valueObj);
+            retObj.put("hikiyama", YamaPreferenceActivity.getHikiyamaName(mContext));
+            retObj.put("omomatsuri", YamaPreferenceActivity.getOmatsuriName(mContext));
         } catch (JSONException e) {
             Log.e(TAG, "createJsonObject() ", e);
             e.printStackTrace();
@@ -64,16 +67,19 @@ public class YamaHttpClient implements Runnable {
 
         HttpClient objHttp = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(
-                YamaPreferenceActivity.getServerURIString());
+                YamaPreferenceActivity.getServerURIString(mContext));
 
         try {
             httpPost.setHeader("Content-Type", "application/json");
             HttpEntity entity = new StringEntity(sendObject.toString());
             httpPost.setEntity(entity);
             HttpResponse objResponse = objHttp.execute(httpPost);
-            // 戻りSTATUS: 201 (Created)
-            Log.d(TAG, "HttpResponse: " + objResponse.toString());
-            // TODO check response Status
+
+            if (objResponse.getStatusLine().getStatusCode() != HttpStatus.SC_CREATED) {
+                // TODO not created location object at Web Server. show warning? or retry?
+                debugHeaderMessage(objResponse);
+            }
+            
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, e.getMessage());
             e.printStackTrace();
@@ -82,6 +88,16 @@ public class YamaHttpClient implements Runnable {
             e.printStackTrace();
         }
 
+    }
+    
+    private void debugHeaderMessage(HttpResponse httpResponse) {
+        Log.d(TAG, "Headers");
+        Header[] headers = httpResponse.getAllHeaders();
+        for (int i = 0; i < headers.length; i++) {
+            Log.d(TAG, "name: " + headers[i].getName() + "value:" + headers[i].getValue());
+        }
+        return;
+        
     }
 
 }

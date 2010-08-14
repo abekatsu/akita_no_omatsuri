@@ -98,11 +98,10 @@ public class YamaLogService extends Service {
         public void onLocationChanged(Location location) {
             Log.d(TAG, "myLocationListener.onLocationChanged()");
 
-            double minRequiredAccuragy = YamaPreferenceActivity.getMinRequiredAccuracy();
+            double minRequiredAccuragy = YamaPreferenceActivity.getMinRequiredAccuracy((Context)YamaLogService.this);
             if (location.getAccuracy() < (float)minRequiredAccuragy) {
                 mCurrentLocation = location;
             } else {
-                // TODO use latest one.
                 Log.d(TAG, "Current accuracy is more than required accuracy. So use the previous value.");
             }
             
@@ -221,8 +220,8 @@ public class YamaLogService extends Service {
             public void run() {
                 mLocationManager.requestLocationUpdates(
                         LocationManager.GPS_PROVIDER, 
-                        YamaPreferenceActivity.getPollingInterval(), 
-                        (float)YamaPreferenceActivity.getGpsUpdateMinDistance(),
+                        YamaPreferenceActivity.getPollingInterval((Context)YamaLogService.this), 
+                        (float)YamaPreferenceActivity.getGpsUpdateMinDistance((Context)YamaLogService.this),
                         myLocationListener);
             }
 
@@ -286,7 +285,7 @@ public class YamaLogService extends Service {
             createTimerTask();
 
             mTimer = new Timer();
-            mTimer.schedule(checkSensorValues, 0, YamaPreferenceActivity.getPollingInterval());
+            mTimer.schedule(checkSensorValues, 0, YamaPreferenceActivity.getPollingInterval((Context)YamaLogService.this));
             ischeckSensorValuesRunning = true;
 
             return true;
@@ -351,7 +350,7 @@ public class YamaLogService extends Service {
                     e.printStackTrace();
                 }
 
-                YamaHttpClient httpClient = new YamaHttpClient(currentDateTime,
+                YamaHttpClient httpClient = new YamaHttpClient((Context)YamaLogService.this, currentDateTime,
                         mCurrentAzimuth, mCurrentLocation);
                 Thread th = new Thread(httpClient);
                 th.start();
