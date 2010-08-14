@@ -97,12 +97,18 @@ public class YamaLogService extends Service {
 
         public void onLocationChanged(Location location) {
             Log.d(TAG, "myLocationListener.onLocationChanged()");
-            // TODO update された location がどの程度の精度か確認する。ひどければ　mCurrentLocation
-            // の内容を更新しない。
-            mCurrentLocation = location;
-            float latitude = new Double(location.getLatitude()).floatValue();
-            float longitude = new Double(location.getLongitude()).floatValue();
-            float altitude = new Double(location.getAltitude()).floatValue();
+
+            double minRequiredAccuragy = YamaPreferenceActivity.getMinRequiredAccuracy();
+            if (location.getAccuracy() < (float)minRequiredAccuragy) {
+                mCurrentLocation = location;
+            } else {
+                // TODO use latest one.
+                Log.d(TAG, "Current accuracy is more than required accuracy. So use the previous value.");
+            }
+            
+            float latitude = new Double(mCurrentLocation.getLatitude()).floatValue();
+            float longitude = new Double(mCurrentLocation.getLongitude()).floatValue();
+            float altitude = new Double(mCurrentLocation.getAltitude()).floatValue();
             mGeomagneticField = new GeomagneticField(latitude, longitude,
                     altitude, new Date().getTime());
         }
@@ -318,6 +324,7 @@ public class YamaLogService extends Service {
             checkSensorValues = null;
             ischeckSensorValuesRunning = false;
         }
+        
         checkSensorValues = new TimerTask() {
 
             @Override

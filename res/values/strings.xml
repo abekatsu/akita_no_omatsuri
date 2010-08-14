@@ -43,8 +43,13 @@
     <string name="gps_update_minDistance_summary">Min distance for GPS manager updating</string>
     <string name="gps_update_minDistance_dialogtitle">Minimal distace for updateing</string>
     
+    <string name="gps_min_required_accuracy_title">Min required GPS accuracy</string>
+    <string name="gps_min_required_accuracy_summary">min accuracy to update GPS</string>
+    <string name="gps_min_required_accuracy_dialogtitle">Min required accuracy</string>
+    
     <string name="default_test_local_server">http://192.168.1.102:8080/</string>
     <string name="default_polling_interval">60000</string>
     <string name="default_gps_update_minDistance">5.0</string>
+    <string name="default_gps_min_required_accuracy">200.0</string>    
     
 </resources>

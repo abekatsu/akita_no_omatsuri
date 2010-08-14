@@ -77,4 +77,12 @@ public class YamaPreferenceActivity extends PreferenceActivity {
         return Double.parseDouble(minDistanceStr);
     }
 
+    public static double getMinRequiredAccuracy() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(mResources.getString(R.string.default_gps_min_required_accuracy));
+        String minAccuracyStr = mPreferences.getString(
+                "gps_min_required_accuracy", sb.toString());
+        return Double.parseDouble(minAccuracyStr);
+    }
+
 }

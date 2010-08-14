@@ -78,5 +78,25 @@
         <item>500.0</item>
     </string-array>
     
+    <string-array name="gps_min_required_accuracy_entries">
+        <item> 10 m</item>        
+        <item> 50 m</item>
+        <item>100 m</item>
+        <item>200 m (Default)</item>
+        <item>500 m</item>        
+        <item> 1 km</item>
+
+        <item>500 m</item>
+    </string-array>
+
+    <string-array name="gps_min_required_accuracy_values">
+        <item>10.0</item>
+        <item>50.0</item>
+        <item>100.0</item>
+        <item>200.0</item>
+        <item>500.0</item>
+        <item>1000.0</item>
+    </string-array>
+    
 </resources>
 

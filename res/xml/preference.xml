@@ -39,6 +39,15 @@
             android:dialogTitle="@string/gps_update_minDistance_dialogtitle"
             android:entries="@array/gps_update_minDistance_entries"
             android:entryValues="@array/gps_update_minDistance_values" />
+            
+        <ListPreference
+            android:key="gps_min_required_accuracy"
+            android:defaultValue="@string/default_gps_min_required_accuracy"
+            android:title="@string/gps_min_required_accuracy_title"
+            android:summary="@string/gps_min_required_accuracy_summary"
+            android:dialogTitle="@string/gps_min_required_accuracy_dialogtitle"
+            android:entries="@array/gps_min_required_accuracy_entries"
+            android:entryValues="@array/gps_min_required_accuracy_values" />
 
     </PreferenceCategory>
 </PreferenceScreen>
