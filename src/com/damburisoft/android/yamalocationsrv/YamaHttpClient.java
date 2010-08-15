@@ -19,22 +19,23 @@ import android.location.Location;
 import android.os.Build;
 import android.util.Log;
 
-import com.damburisoft.android.yamalocationsrv.service.YamaLogService;
-
 public class YamaHttpClient implements Runnable {
 
     private final static String TAG = "YamaHttpClient";
 
     private long mDateTime;
     private double mAzimuth;
+    private double mBatteryLevel;
     private Location mLocation;
     private Context mContext;
 
-    public YamaHttpClient(Context context,long datetime, double azimuth, Location location) {
+    public YamaHttpClient(Context context, long datetime, double azimuth, 
+            Location location, double batteryLevel) {
         mContext  = context;
         mDateTime = datetime;
         mAzimuth  = azimuth;
         mLocation = location;
+        mBatteryLevel = batteryLevel;
     }
 
     public JSONObject createJsonObject() {
@@ -49,7 +50,7 @@ public class YamaHttpClient implements Runnable {
             valueObj.put("heading", mAzimuth);
             valueObj.put("timestamp",
                     DateTimeUtilities.getDateAndTime(mDateTime));
-            valueObj.put("battery_level", YamaLogService.getBatteryLevel());
+            valueObj.put("battery_level", mBatteryLevel);
             retObj.put("location", valueObj);
             retObj.put("hikiyama", YamaPreferenceActivity.getHikiyamaName(mContext));
             retObj.put("omomatsuri", YamaPreferenceActivity.getOmatsuriName(mContext));

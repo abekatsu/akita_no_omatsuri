@@ -14,8 +14,10 @@ import com.damburisoft.android.yamalocationsrv.YamaLocationProviderConstants;
 import com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -53,12 +55,29 @@ public class YamaLogService extends Service {
     private float[] accelerometerValues = new float[3];
     private double mCurrentAzimuth = Double.NaN;
     private Location mCurrentLocation = null;
+    private double mBatteryLevel = 1.0;
 
     /** The timer posts a runnable to the main thread via this handler. */
     private TimerTask checkSensorValues;
     private boolean ischeckSensorValuesRunning = false;
 
     private WakeLock mWakeLock;
+    
+    private BroadcastReceiver mBatteryBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
+                int level = intent.getIntExtra("level", 0);
+                mBatteryLevel = (double)(level / 100.0);
+                Log.d(TAG, "Battery level: " + mBatteryLevel);
+            } else if (action.equals(Intent.ACTION_BATTERY_LOW)) {
+                // TODO implementation to save log file into SD card.
+            }
+        }
+        
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -73,6 +92,10 @@ public class YamaLogService extends Service {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         acquireWakeLock();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        filter.addAction(Intent.ACTION_BATTERY_LOW);
+        registerReceiver(mBatteryBroadcastReceiver, filter);
     }
 
     @Override
@@ -86,6 +109,8 @@ public class YamaLogService extends Service {
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
         }
+        
+        unregisterReceiver(mBatteryBroadcastReceiver);
         unregisterSensorEventListener();
         unregisterLocationListener();
         closeLogFile();
@@ -279,6 +304,11 @@ public class YamaLogService extends Service {
     private final IYamaLogService.Stub binder = new IYamaLogService.Stub() {
         public boolean startLogService() throws RemoteException {
             Log.d(TAG, "IYamaLogService.Stub.startLogService");
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+            filter.addAction(Intent.ACTION_BATTERY_LOW);
+            registerReceiver(mBatteryBroadcastReceiver, filter);
+
             registerSensorEventListener();
             registerLocationListener();
             openLogFile();
@@ -293,6 +323,7 @@ public class YamaLogService extends Service {
 
         public void stopLogService() throws RemoteException {
             Log.d(TAG, "IYamaLogService.Stub.stopLogService");
+            unregisterReceiver(mBatteryBroadcastReceiver);
             unregisterSensorEventListener();
             unregisterLocationListener();
             closeLogFile();
@@ -351,7 +382,7 @@ public class YamaLogService extends Service {
                 }
 
                 YamaHttpClient httpClient = new YamaHttpClient((Context)YamaLogService.this, currentDateTime,
-                        mCurrentAzimuth, mCurrentLocation);
+                        mCurrentAzimuth, mCurrentLocation, mBatteryLevel);
                 Thread th = new Thread(httpClient);
                 th.start();
             }
@@ -395,6 +426,10 @@ public class YamaLogService extends Service {
                 sb.append((float) mCurrentLocation.getAccuracy());
                 sb.append(",");
                 sb.append((float) mCurrentAzimuth);
+                sb.append(",");
+                sb.append((float) 0.0);
+                sb.append(",");
+                sb.append((float) mBatteryLevel);
                 sb.append("\n");
 
                 return sb.toString();
@@ -436,12 +471,6 @@ public class YamaLogService extends Service {
         } finally {
             mFos = null;
         }
-    }
-
-    public static double getBatteryLevel() {
-        // TODO Auto-generated method stub
-        // TODO implement here
-        return 1.0;
     }
 
 }
