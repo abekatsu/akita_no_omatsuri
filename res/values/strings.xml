@@ -27,8 +27,9 @@
     <string name="neighborhood_associate_summary">summary</string>
     <string name="neighborhood_associate_dialogtitle">Dialog Title (町内会)</string>
 
-    <string name="default_choumei">ekimae</string>
-    
+    <string name="device_nickname_title">Put Device Nickname</string>
+    <string name="device_nickname_summary">identify device at Web Server</string>
+        
     <string name="isLocalServer_title">Use local server.</string>
     <string name="isLocalServer_summary">Use local server as the destination Web Server of posting data.</string>
     
@@ -46,7 +47,8 @@
     <string name="gps_min_required_accuracy_title">Min required GPS accuracy</string>
     <string name="gps_min_required_accuracy_summary">min accuracy to update GPS</string>
     <string name="gps_min_required_accuracy_dialogtitle">Min required accuracy</string>
-    
+
+    <string name="default_choumei">ekimae</string>    
     <string name="default_test_local_server">http://192.168.1.102:8080/</string>
     <string name="default_polling_interval">60000</string>
     <string name="default_gps_update_minDistance">5.0</string>

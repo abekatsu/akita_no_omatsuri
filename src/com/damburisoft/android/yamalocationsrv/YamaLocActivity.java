@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -40,7 +41,6 @@ import android.widget.Toast;
 public class YamaLocActivity extends MapActivity {
     private final static String TAG = "YamaLocActivity";
     private IYamaLogService yamaLogService = null;
-    private boolean isYamaLogServiceRunning = false;
 
     private MapView mMapView;
     private MapController mMapController = null;
@@ -81,14 +81,20 @@ public class YamaLocActivity extends MapActivity {
         mMapController = mMapView.getController();
         mMapController.setZoom(YamaLocationProviderConstants.defaultZoom);
         mMapView.setBuiltInZoomControls(true);
-
+        
+        /*
+         * Set up the default device_nickname as Build.MODEL
+         */
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(this);
-        isYamaLogServiceRunning = settings.getBoolean(
-                YamaLocationProviderConstants.IsLoggingServiceRunning, false);
+        if (!settings.contains("device_nickname")) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("device_nickname", Build.MODEL);
+            editor.commit();
+        }
         
         createRedrawHandler();
-        
+
         Intent startIntent = new Intent(YamaLocActivity.this,
                 YamaLogService.class);
         startService(startIntent);
@@ -387,9 +393,7 @@ public class YamaLocActivity extends MapActivity {
 
     private void tryUnbindLogService() {
         try {
-            if (isYamaLogServiceRunning) {
-                unbindService(serviceConnection);
-            }
+            unbindService(serviceConnection);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, e.toString());
             e.printStackTrace();

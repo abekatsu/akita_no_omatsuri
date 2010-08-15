@@ -43,7 +43,7 @@ public class YamaHttpClient implements Runnable {
         JSONObject retObj = new JSONObject();
         try {
             valueObj.put("heading_accuracy", 0.0);
-            valueObj.put("device_nickname", Build.MODEL);
+            valueObj.put("device_nickname", YamaPreferenceActivity.getNickName(mContext));
             valueObj.put("horizontal_accuracy", mLocation.getAccuracy());
             valueObj.put("longitude", mLocation.getLongitude());
             valueObj.put("latitude", mLocation.getLatitude());

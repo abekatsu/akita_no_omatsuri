@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -86,6 +87,10 @@ public class YamaPreferenceActivity extends PreferenceActivity {
 
     public static String getOmatsuriName(Context context) {
         return context.getString(R.string.default_omatsuri_name);
+    }
+
+    public static String getNickName(Context context) {
+        return getPreferencesString(context, "device_nickname", Build.MODEL); 
     }
 
 }
