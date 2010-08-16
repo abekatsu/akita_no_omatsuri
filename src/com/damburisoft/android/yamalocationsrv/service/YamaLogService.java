@@ -78,6 +78,8 @@ public class YamaLogService extends Service {
         }
         
     };
+    
+    private boolean isBatteryBroadcastReceiverRegistered = false;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -96,6 +98,7 @@ public class YamaLogService extends Service {
         filter.addAction(Intent.ACTION_BATTERY_CHANGED);
         filter.addAction(Intent.ACTION_BATTERY_LOW);
         registerReceiver(mBatteryBroadcastReceiver, filter);
+        isBatteryBroadcastReceiverRegistered = true;
     }
 
     @Override
@@ -109,8 +112,9 @@ public class YamaLogService extends Service {
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
         }
-        
-        unregisterReceiver(mBatteryBroadcastReceiver);
+        if (isBatteryBroadcastReceiverRegistered) {
+            unregisterReceiver(mBatteryBroadcastReceiver);
+        }
         unregisterSensorEventListener();
         unregisterLocationListener();
         closeLogFile();
@@ -268,6 +272,21 @@ public class YamaLogService extends Service {
         }
 
     }
+    
+    private void registerBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        filter.addAction(Intent.ACTION_BATTERY_LOW);
+        registerReceiver(mBatteryBroadcastReceiver, filter);
+        isBatteryBroadcastReceiverRegistered = true;
+    }
+    
+    private void unregisterBroadcastReceiver() {
+        if (isBatteryBroadcastReceiverRegistered) {
+            unregisterReceiver(mBatteryBroadcastReceiver);
+            isBatteryBroadcastReceiverRegistered = false;
+        }
+    }
 
     /**
      * Tries to acquire a partial wake lock if not already acquired. Logs errors
@@ -304,11 +323,7 @@ public class YamaLogService extends Service {
     private final IYamaLogService.Stub binder = new IYamaLogService.Stub() {
         public boolean startLogService() throws RemoteException {
             Log.d(TAG, "IYamaLogService.Stub.startLogService");
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Intent.ACTION_BATTERY_CHANGED);
-            filter.addAction(Intent.ACTION_BATTERY_LOW);
-            registerReceiver(mBatteryBroadcastReceiver, filter);
-
+            registerBroadcastReceiver();
             registerSensorEventListener();
             registerLocationListener();
             openLogFile();
@@ -323,7 +338,7 @@ public class YamaLogService extends Service {
 
         public void stopLogService() throws RemoteException {
             Log.d(TAG, "IYamaLogService.Stub.stopLogService");
-            unregisterReceiver(mBatteryBroadcastReceiver);
+            unregisterBroadcastReceiver();
             unregisterSensorEventListener();
             unregisterLocationListener();
             closeLogFile();

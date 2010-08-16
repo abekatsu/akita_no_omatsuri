@@ -66,8 +66,8 @@ public class YamaLocActivity extends MapActivity {
             Log.d(TAG, "YamaLogActivity: Service now disconnected.");
             yamaLogService = null;
             Toast.makeText(YamaLocActivity.this,
-                           R.string.status_service_disconnected,
-                           Toast.LENGTH_SHORT).show();
+                    R.string.status_service_disconnected, Toast.LENGTH_SHORT)
+                    .show();
         }
 
     };
@@ -81,7 +81,7 @@ public class YamaLocActivity extends MapActivity {
         mMapController = mMapView.getController();
         mMapController.setZoom(YamaLocationProviderConstants.defaultZoom);
         mMapView.setBuiltInZoomControls(true);
-        
+
         /*
          * Set up the default device_nickname as Build.MODEL
          */
@@ -92,7 +92,7 @@ public class YamaLocActivity extends MapActivity {
             editor.putString("device_nickname", Build.MODEL);
             editor.commit();
         }
-        
+
         createRedrawHandler();
 
         Intent startIntent = new Intent(YamaLocActivity.this,
@@ -140,7 +140,7 @@ public class YamaLocActivity extends MapActivity {
                 if (yamaLogService.isRunning()) {
                     mi.setTitle(R.string.menu_stop);
                 } else {
-                    mi.setTitle(R.string.menu_start);   
+                    mi.setTitle(R.string.menu_start);
                 }
             } catch (RemoteException e) {
                 Log.e(TAG, "onPrepareOptionsMenu: " + e.getMessage());
@@ -159,13 +159,13 @@ public class YamaLocActivity extends MapActivity {
                 Log.e(TAG, "YamaLogService is null");
                 retvalue = true;
                 break;
-            } 
+            }
 
             try {
                 if (yamaLogService.isRunning()) {
                     stopPollingService();
                 } else {
-                    startPollingService();   
+                    startPollingService();
                 }
             } catch (RemoteException e) {
                 // TODO Auto-generated catch block
@@ -181,14 +181,22 @@ public class YamaLocActivity extends MapActivity {
             retvalue = true;
             break;
         case R.id.menu_quit:
-            stopPollingService();
-            finish();
-            retvalue = true;
+            try {
+                if (yamaLogService.isRunning()) {
+                    stopPollingService();
+                }
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                finish();
+                retvalue = true;
+            }
             break;
         case R.id.menu_preference:
             Intent intent = new Intent();
             intent.setClassName("com.damburisoft.android.yamalocationsrv",
-                "com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity");
+                    "com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity");
             startActivity(intent);
             retvalue = true;
             break;
@@ -201,7 +209,7 @@ public class YamaLocActivity extends MapActivity {
 
     private void createRedrawHandler() {
         Log.d(TAG, "YamaLogActivity.createRedrawHandler");
-        
+
         mRedrawHandler = new Handler() {
 
             @Override
@@ -239,8 +247,8 @@ public class YamaLocActivity extends MapActivity {
                     if (msg.arg1 == YamaLocationProviderConstants.UpdateInfo.LOCATION) {
                         Location loc = (Location) msg.obj;
                         GeoPoint gp = new GeoPoint(
-                                (int) (loc.getLatitude() * 1E6), (int) (loc
-                                        .getLongitude() * 1E6));
+                                (int) (loc.getLatitude() * 1E6),
+                                (int) (loc.getLongitude() * 1E6));
                         mMapController.animateTo(gp);
                         List<Overlay> overlays = mMapView.getOverlays();
                         if (mYamaMapOverlay != null) {
@@ -261,19 +269,19 @@ public class YamaLocActivity extends MapActivity {
     private void startPollingService() {
         if (yamaLogService == null) {
             Log.e(TAG, "yamaLogService is null");
-            return ;
+            return;
         }
 
         try {
             yamaLogService.startLogService();
-            Toast.makeText(YamaLocActivity.this,
-                           R.string.status_now_logging, Toast.LENGTH_SHORT).show();
+            Toast.makeText(YamaLocActivity.this, R.string.status_now_logging,
+                    Toast.LENGTH_SHORT).show();
 
         } catch (RemoteException e) {
             Log.e(TAG, e.getMessage());
             Toast.makeText(YamaLocActivity.this,
-                           R.string.error_unable_to_start_logging,
-                           Toast.LENGTH_SHORT).show();
+                    R.string.error_unable_to_start_logging, Toast.LENGTH_SHORT)
+                    .show();
         }
 
         mTimer = new Timer();
@@ -346,7 +354,7 @@ public class YamaLocActivity extends MapActivity {
         try {
             yamaLogService.stopLogService();
         } catch (RemoteException e) {
-            // TODO Auto-generated catch block
+            Log.e(TAG, "RemoteException: " + e.toString());
             e.printStackTrace();
         }
     }
@@ -395,7 +403,9 @@ public class YamaLocActivity extends MapActivity {
         try {
             unbindService(serviceConnection);
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, e.toString());
+            Log.d(TAG,
+                    "Tried unbind, but service is not registered: "
+                            + e.toString());
             e.printStackTrace();
         }
 
