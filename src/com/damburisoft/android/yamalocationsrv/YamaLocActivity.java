@@ -50,7 +50,9 @@ public class YamaLocActivity extends MapActivity {
 
     private Timer mTimer = null;
     private TimerTask checkServiceValues = null;
-
+    
+    private boolean isServiceRegisterd = false;
+    
     /**
      * The connection to the Yama Log Service.
      * 
@@ -87,11 +89,13 @@ public class YamaLocActivity extends MapActivity {
          */
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
         if (!settings.contains("device_nickname")) {
-            SharedPreferences.Editor editor = settings.edit();
             editor.putString("device_nickname", Build.MODEL);
             editor.commit();
         }
+        editor.putString("sdcard_logname", DateTimeUtilities.getFilenameFromDateAndTime() + ".log");
+        editor.commit();
 
         createRedrawHandler();
 
@@ -175,7 +179,7 @@ public class YamaLocActivity extends MapActivity {
             retvalue = true;
             break;
         case R.id.menu_save:
-            copyLogToSdCard();
+            YamaLocActivity.copyLogToSdCard((Context)this);
             Toast.makeText(YamaLocActivity.this, R.string.log_saved_to_sdcard,
                     Toast.LENGTH_SHORT).show();
             retvalue = true;
@@ -359,49 +363,21 @@ public class YamaLocActivity extends MapActivity {
         }
     }
 
-    private void copyLogToSdCard() {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            return;
-        }
-
-        String dst = Environment.getExternalStorageDirectory()
-                .getAbsolutePath()
-                + File.separator
-                + DateTimeUtilities.getFilenameFromDateAndTime() + ".log";
-
-        FileChannel srcChannel = null;
-        FileChannel dstChannel = null;
-        try {
-            srcChannel = openFileInput(
-                    YamaLocationProviderConstants.logFileName).getChannel();
-            dstChannel = new FileOutputStream(dst).getChannel();
-            srcChannel.transferTo(0, srcChannel.size(), dstChannel);
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
-        } finally {
-            try {
-                srcChannel.close();
-                dstChannel.close();
-            } catch (IOException e) {
-                Log.e(TAG, e.toString());
-                e.printStackTrace();
-            }
-        }
-    }
-
+    
     private boolean tryBindLogService() {
-        return bindService(new Intent(this, YamaLogService.class),
-                serviceConnection, Context.BIND_AUTO_CREATE);
+        isServiceRegisterd = bindService(new Intent(this, YamaLogService.class),
+                serviceConnection, Context.BIND_AUTO_CREATE); 
+        return isServiceRegisterd;
     }
 
     private void tryUnbindLogService() {
+        if (!isServiceRegisterd) {
+            return ;
+        }
+        
         try {
             unbindService(serviceConnection);
+            isServiceRegisterd = false;
         } catch (IllegalArgumentException e) {
             Log.d(TAG,
                     "Tried unbind, but service is not registered: "
@@ -422,9 +398,51 @@ public class YamaLocActivity extends MapActivity {
 
         return sb.toString();
     }
+    
 
     @Override
     protected boolean isRouteDisplayed() {
         return false;
     }
+
+    public static void copyLogToSdCard(Context context) {
+        String state = Environment.getExternalStorageState();
+        if (!Environment.MEDIA_MOUNTED.equals(state)) {
+            return;
+        }
+
+        String parentDirStr = Environment.getExternalStorageDirectory()
+                .getAbsolutePath()
+                + File.separator + "akita_no_omatsuri" + File.separator;
+        File parentDir = new File(parentDirStr);
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
+        String dst = parentDirStr + YamaPreferenceActivity.getSdcardLogFileName(context); 
+
+        FileChannel srcChannel = null;
+        FileChannel dstChannel = null;
+        try {
+            srcChannel = context.openFileInput(
+                    YamaLocationProviderConstants.logFileName).getChannel();
+            dstChannel = new FileOutputStream(dst).getChannel();
+            srcChannel.transferTo(0, srcChannel.size(), dstChannel);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
+        } finally {
+            try {
+                srcChannel.close();
+                dstChannel.close();
+            } catch (IOException e) {
+                Log.e(TAG, e.toString());
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

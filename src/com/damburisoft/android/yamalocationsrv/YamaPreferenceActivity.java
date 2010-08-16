@@ -93,4 +93,8 @@ public class YamaPreferenceActivity extends PreferenceActivity {
         return getPreferencesString(context, "device_nickname", Build.MODEL); 
     }
 
+    public static String getSdcardLogFileName(Context context) {
+        return getPreferencesString(context, "sdcard_logname", DateTimeUtilities.getFilenameFromDateAndTime() + ".log");
+    }
+
 }

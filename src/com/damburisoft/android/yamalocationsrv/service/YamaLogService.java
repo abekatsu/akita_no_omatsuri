@@ -10,6 +10,7 @@ import java.util.TimerTask;
 
 import com.damburisoft.android.yamalocationsrv.DateTimeUtilities;
 import com.damburisoft.android.yamalocationsrv.YamaHttpClient;
+import com.damburisoft.android.yamalocationsrv.YamaLocActivity;
 import com.damburisoft.android.yamalocationsrv.YamaLocationProviderConstants;
 import com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity;
 
@@ -73,7 +74,8 @@ public class YamaLogService extends Service {
                 mBatteryLevel = (double)(level / 100.0);
                 Log.d(TAG, "Battery level: " + mBatteryLevel);
             } else if (action.equals(Intent.ACTION_BATTERY_LOW)) {
-                // TODO implementation to save log file into SD card.
+                Log.d(TAG, "Battery Low broadcast received.");
+                YamaLocActivity.copyLogToSdCard(YamaLogService.this);
             }
         }
         
@@ -391,6 +393,7 @@ public class YamaLogService extends Service {
                 try {
                     mFos.write(logString.getBytes());
                     // TODO determinate write logDate to SD.
+                    YamaLocActivity.copyLogToSdCard(YamaLogService.this);
                 } catch (IOException e) {
                     Log.e(TAG, e.toString());
                     e.printStackTrace();
