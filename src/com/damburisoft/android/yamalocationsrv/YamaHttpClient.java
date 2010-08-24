@@ -16,7 +16,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
-import android.os.Build;
 import android.util.Log;
 
 public class YamaHttpClient implements Runnable {

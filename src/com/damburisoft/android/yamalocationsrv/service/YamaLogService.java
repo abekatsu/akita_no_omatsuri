@@ -437,6 +437,7 @@ public class YamaLogService extends Service {
             private String createLogInfo(long currentDateTime) {
                 StringBuffer sb = new StringBuffer();
                 sb.append(DateTimeUtilities.getDateAndTime(currentDateTime));
+                sb.append(",");
                 sb.append((float) mCurrentLocation.getLongitude());
                 sb.append(",");
                 sb.append((float) mCurrentLocation.getLatitude());
