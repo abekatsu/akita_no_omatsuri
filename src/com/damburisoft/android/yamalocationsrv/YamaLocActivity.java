@@ -143,8 +143,10 @@ public class YamaLocActivity extends MapActivity {
             try {
                 if (yamaLogService.isRunning()) {
                     mi.setTitle(R.string.menu_stop);
+                    mi.setIcon(R.drawable.ic_menu_stop);
                 } else {
                     mi.setTitle(R.string.menu_start);
+                    mi.setIcon(R.drawable.ic_menu_mylocation);
                 }
             } catch (RemoteException e) {
                 Log.e(TAG, "onPrepareOptionsMenu: " + e.getMessage());
