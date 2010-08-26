@@ -72,6 +72,12 @@ public class YamaPreferenceActivity extends PreferenceActivity {
         return Long.parseLong(pollingIntStr);
     }
 
+    public static long getPushingInterval(Context context) {
+        String pushingIntStr = getPreferencesString(context, "pushing_interval", 
+                context.getString(R.string.default_pushing_interval));
+        return Long.parseLong(pushingIntStr);
+    }
+    
     public static double getGpsUpdateMinDistance(Context context) {
         String minDistanceStr = getPreferencesString(context, "polling_interval", 
                 context.getString(R.string.default_gps_update_minDistance));

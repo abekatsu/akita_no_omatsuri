@@ -374,25 +374,33 @@ public class YamaLogService extends Service {
         
         checkSensorValues = new TimerTask() {
 
+            private long mPreviousGPSTime = -1;
+
             @Override
             public void run() {
                 long currentDateTime = (new Date()).getTime();
-                mCurrentAzimuth = calcurateAzimuth();
-                if (mCurrentAzimuth == Double.NaN) {
-                    Log.d(TAG, "cannot obtain azimuth.");
-                    return;
-                }
-
+                
                 if (mCurrentLocation == null) {
                     Log.d(TAG, "Location has not been settled by GPS.");
                     mCurrentLocation = mLocationManager
                             .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
 
+                if (mPreviousGPSTime >= mCurrentLocation.getTime()) {
+                    Log.d(TAG,
+                            "GPS is not updated after previous pushing data. So we doesn't push data now.");
+                    return;
+                }
+                
+                mCurrentAzimuth = calcurateAzimuth();
+                if (mCurrentAzimuth == Double.NaN) {
+                    Log.d(TAG, "cannot obtain azimuth.");
+                    return;
+                }
+
                 String logString = createLogInfo(currentDateTime);
                 try {
                     mFos.write(logString.getBytes());
-                    // TODO determinate write logDate to SD.
                     YamaLocActivity.copyLogToSdCard(YamaLogService.this);
                 } catch (IOException e) {
                     Log.e(TAG, e.toString());
@@ -403,6 +411,7 @@ public class YamaLogService extends Service {
                         mCurrentAzimuth, mCurrentLocation, mBatteryLevel);
                 Thread th = new Thread(httpClient);
                 th.start();
+                mPreviousGPSTime = mCurrentLocation.getTime();
             }
 
             private double calcurateAzimuth() {

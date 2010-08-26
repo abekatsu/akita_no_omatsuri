@@ -59,7 +59,21 @@
         <item>300000</item>
         <item>600000</item>
     </string-array>
+
+    <string-array name="pushing_interval_entries">
+        <item> 1 min (Default)</item>
+        <item> 2 min</item>
+        <item> 5 min</item>
+        <item>10 min</item>        
+    </string-array>
     
+    <string-array name="pushing_interval_values">
+        <item>60000</item>
+        <item>120000</item>
+        <item>300000</item>
+        <item>600000</item>
+    </string-array>
+
     <string-array name="gps_update_minDistance_entries">
         <item>  1 m</item>
         <item>  5 m (Default)</item>

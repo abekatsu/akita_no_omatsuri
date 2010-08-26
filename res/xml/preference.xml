@@ -15,17 +15,6 @@
             android:title="@string/device_nickname_title"
             android:summary="@string/device_nickname_summary" />
 
-        <CheckBoxPreference 
-            android:key="isLocalServer"
-            android:defaultValue="false" 
-            android:title="@string/isLocalServer_title"
-            android:summary="@string/isLocalServer_summary" />
-
-        <EditTextPreference 
-            android:key="test_local_server"
-            android:defaultValue="@string/default_test_local_server"
-            android:title="@string/test_local_server_title"
-            android:summary="@string/test_local_server_summary" />
 
         <ListPreference 
             android:key="polling_interval"
@@ -35,6 +24,15 @@
             android:dialogTitle="@string/polling_interval_dialogtitle"
             android:entries="@array/polling_interval_entries"
             android:entryValues="@array/polling_interval_values" />
+
+        <ListPreference 
+            android:key="pushing_interval"
+            android:defaultValue="@string/default_pushing_interval"
+            android:title="@string/pushing_interval_title"
+            android:summary="@string/pushing_interval_summary"
+            android:dialogTitle="@string/pushing_interval_dialogtitle"
+            android:entries="@array/pushing_interval_entries"
+            android:entryValues="@array/pushing_interval_values" />
 
         <ListPreference
             android:key="gps_update_minDistance"
@@ -53,6 +51,19 @@
             android:dialogTitle="@string/gps_min_required_accuracy_dialogtitle"
             android:entries="@array/gps_min_required_accuracy_entries"
             android:entryValues="@array/gps_min_required_accuracy_values" />
+            
+        <CheckBoxPreference 
+            android:key="isLocalServer"
+            android:defaultValue="false" 
+            android:title="@string/isLocalServer_title"
+            android:summary="@string/isLocalServer_summary" />
+
+        <EditTextPreference 
+            android:key="test_local_server"
+            android:defaultValue="@string/default_test_local_server"
+            android:title="@string/test_local_server_title"
+            android:summary="@string/test_local_server_summary" />
+            
 
     </PreferenceCategory>
 </PreferenceScreen>
