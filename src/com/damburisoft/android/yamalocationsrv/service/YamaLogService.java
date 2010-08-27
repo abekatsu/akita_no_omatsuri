@@ -7,9 +7,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.damburisoft.android.yamalocationsrv.DateTimeUtilities;
 import com.damburisoft.android.yamalocationsrv.YamaHttpClient;
+import com.damburisoft.android.yamalocationsrv.YamaInfo;
 import com.damburisoft.android.yamalocationsrv.YamaLocActivity;
 import com.damburisoft.android.yamalocationsrv.YamaLocationProviderConstants;
 import com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity;
@@ -50,18 +52,29 @@ public class YamaLogService extends Service {
 
     private boolean isMagneticFieldSensorRegistered = false;
     private boolean isAccelerometerSensorRegistered = false;
-    private boolean isLocationListenerRegistered = false;
+    private boolean isOrientationSensorRegistered   = false;
+    private boolean isLocationListenerRegistered    = false;
+    
+    private Sensor mMagneticFieldSensor;
+    private Sensor mAccelerometerSensor;
+    private Sensor mOrientationSensor;
 
     private float[] magneticFieldValues = new float[3];
     private float[] accelerometerValues = new float[3];
     private double mCurrentAzimuth = Double.NaN;
     private Location mCurrentLocation = null;
     private double mBatteryLevel = 1.0;
+    
+    private ArrayBlockingQueue<YamaInfo> mQueue;
 
     /** The timer posts a runnable to the main thread via this handler. */
     private TimerTask checkSensorValues;
     private boolean ischeckSensorValuesRunning = false;
-
+    private TimerTask checkLocationListener;
+    private boolean ischeckLocationListenerRunning = false;
+    private TimerTask sendInfoServer; 
+    private boolean isSendInfoServerRunning = false;
+ 
     private WakeLock mWakeLock;
     
     private BroadcastReceiver mBatteryBroadcastReceiver = new BroadcastReceiver() {
@@ -193,7 +206,7 @@ public class YamaLogService extends Service {
         if (mSensorManager == null) {
             Log.e(TAG, "No Sensor Manager");
             return false;
-        }
+        }        
 
         List<Sensor> sensor_list = mSensorManager
                 .getSensorList(Sensor.TYPE_ALL);
@@ -202,15 +215,23 @@ public class YamaLogService extends Service {
                 isMagneticFieldSensorRegistered = mSensorManager
                         .registerListener(mySensorEventListener, s,
                                 SensorManager.SENSOR_DELAY_UI);
+                mMagneticFieldSensor = s;
             } else if (s.getType() == Sensor.TYPE_ACCELEROMETER) {
                 isAccelerometerSensorRegistered = mSensorManager
                         .registerListener(mySensorEventListener, s,
                                 SensorManager.SENSOR_DELAY_UI);
+                mAccelerometerSensor = s;
+            } else if (s.getType() == Sensor.TYPE_ORIENTATION) {
+                isOrientationSensorRegistered = mSensorManager
+                        .registerListener(mySensorEventListener, s,
+                                SensorManager.SENSOR_DELAY_UI);
+                mOrientationSensor = s;
             }
         }
 
         if (isMagneticFieldSensorRegistered == false
-                || isAccelerometerSensorRegistered == false) {
+                || isAccelerometerSensorRegistered == false
+                || isOrientationSensorRegistered == false) {
             unregisterSensorEventListener();
             return false;
         }
@@ -224,15 +245,23 @@ public class YamaLogService extends Service {
             Log.e(TAG, "No Sensor Manager");
             return;
         }
-
+        
         if (isMagneticFieldSensorRegistered) {
-            mSensorManager.unregisterListener(mySensorEventListener);
+            mSensorManager.unregisterListener(mySensorEventListener, mMagneticFieldSensor);
+            mMagneticFieldSensor = null;
             isMagneticFieldSensorRegistered = false;
         }
 
         if (isAccelerometerSensorRegistered) {
-            mSensorManager.unregisterListener(mySensorEventListener);
+            mSensorManager.unregisterListener(mySensorEventListener, mAccelerometerSensor);
+            mAccelerometerSensor = null;
             isAccelerometerSensorRegistered = false;
+        }
+        
+        if (isOrientationSensorRegistered) {
+            mSensorManager.unregisterListener(mySensorEventListener, mOrientationSensor);
+            mOrientationSensor = null;
+            isOrientationSensorRegistered = false;
         }
     }
 
@@ -331,9 +360,21 @@ public class YamaLogService extends Service {
             openLogFile();
             createTimerTask();
 
+            mQueue = new ArrayBlockingQueue<YamaInfo>(10);
+            long pollingInterval = YamaPreferenceActivity.getPollingInterval((Context)YamaLogService.this);
             mTimer = new Timer();
-            mTimer.schedule(checkSensorValues, 0, YamaPreferenceActivity.getPollingInterval((Context)YamaLogService.this));
+            mTimer.schedule(checkSensorValues, 0, pollingInterval);
             ischeckSensorValuesRunning = true;
+            
+            /*
+             * after 5 minutes later, starts a task to re-register LocationListener. 
+             */
+            mTimer.schedule(checkLocationListener,  5 * 60 * 1000 + (pollingInterval / 2), pollingInterval);
+            ischeckLocationListenerRunning = true;
+            
+            long pushingInterval = YamaPreferenceActivity.getPushingInterval((Context)YamaLogService.this);
+            mTimer.schedule(sendInfoServer, pushingInterval / 2, pushingInterval);
+            isSendInfoServerRunning = true;
 
             return true;
         }
@@ -366,12 +407,57 @@ public class YamaLogService extends Service {
     };
 
     private void createTimerTask() {
+        
+        if (ischeckLocationListenerRunning) {
+            checkLocationListener.cancel();
+            checkLocationListener = null;
+            ischeckLocationListenerRunning = false;
+        }
+
+        checkLocationListener = new TimerTask() {
+
+            @Override
+            public void run() {
+                unregisterLocationListener();
+                registerLocationListener();
+            }
+
+        };
+        
+        if (isSendInfoServerRunning) {
+            sendInfoServer.cancel();
+            sendInfoServer = null;
+            isSendInfoServerRunning = false;
+        }
+        
+        sendInfoServer = new TimerTask() {
+            @Override
+            public void run() {
+                Log.d(TAG, "sendInfoServer.run");
+                Log.d(TAG, "mQueue.isEmpty()? " + mQueue.isEmpty());
+                while (mQueue.isEmpty() != true) {
+                    YamaInfo info;
+                    try {
+                        info = mQueue.take();
+                        YamaHttpClient httpClient = new YamaHttpClient((Context)YamaLogService.this, info); 
+                        Thread th = new Thread(httpClient);
+                        th.start();
+                        // Wait here
+                        Thread.sleep(500); // 500 ms
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
         if (ischeckSensorValuesRunning) {
             checkSensorValues.cancel();
             checkSensorValues = null;
             ischeckSensorValuesRunning = false;
         }
-        
+
         checkSensorValues = new TimerTask() {
 
             private long mPreviousGPSTime = -1;
@@ -406,11 +492,19 @@ public class YamaLogService extends Service {
                     Log.e(TAG, e.toString());
                     e.printStackTrace();
                 }
-
-                YamaHttpClient httpClient = new YamaHttpClient((Context)YamaLogService.this, currentDateTime,
+                
+                String hikiyama = YamaPreferenceActivity.getHikiyamaName(YamaLogService.this);
+                String omomatsuri = YamaPreferenceActivity.getOmatsuriName(YamaLogService.this);
+                YamaInfo info = new YamaInfo(omomatsuri, hikiyama, currentDateTime, 
                         mCurrentAzimuth, mCurrentLocation, mBatteryLevel);
-                Thread th = new Thread(httpClient);
-                th.start();
+                try {
+                    mQueue.put(info);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    Log.d(TAG, e.getMessage());
+                    e.printStackTrace();
+                }
+                
                 mPreviousGPSTime = mCurrentLocation.getTime();
             }
 
@@ -467,6 +561,18 @@ public class YamaLogService extends Service {
     }
 
     private void stopTimerTask() {
+        if (ischeckLocationListenerRunning) {
+            checkLocationListener.cancel();
+            checkLocationListener = null;
+        }
+        ischeckLocationListenerRunning = false;
+        
+        if (isSendInfoServerRunning) {
+            sendInfoServer.cancel();
+            sendInfoServer = null;
+            isSendInfoServerRunning = false;
+        }
+
         if (checkSensorValues != null) {
             checkSensorValues.cancel();
             checkSensorValues = null;

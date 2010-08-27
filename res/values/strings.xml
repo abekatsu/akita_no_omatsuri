@@ -42,7 +42,7 @@
     
     <string name="pushing_interval_title">Pushing Interval</string>
     <string name="pushing_interval_summary">sepcify interval to get GPS and azimuth.</string>
-    <string name="pushing_interval_dialogtitle">Set Pusing Interval</string>
+    <string name="pushing_interval_dialogtitle">Set Pushing Interval</string>
 
     <string name="gps_update_minDistance_title">Min Distace for GPS update.</string>
     <string name="gps_update_minDistance_summary">Min distance for GPS manager updating</string>

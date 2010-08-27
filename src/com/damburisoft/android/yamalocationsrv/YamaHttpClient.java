@@ -7,10 +7,11 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,6 +28,9 @@ public class YamaHttpClient implements Runnable {
     private double mBatteryLevel;
     private Location mLocation;
     private Context mContext;
+    private String mHikiyama;
+    private String mOmomatsuri;
+    private String mNickname;
 
     public YamaHttpClient(Context context, long datetime, double azimuth, 
             Location location, double batteryLevel) {
@@ -35,6 +39,20 @@ public class YamaHttpClient implements Runnable {
         mAzimuth  = azimuth;
         mLocation = location;
         mBatteryLevel = batteryLevel;
+        mHikiyama = YamaPreferenceActivity.getHikiyamaName(mContext);    
+        mOmomatsuri = YamaPreferenceActivity.getOmatsuriName(mContext);
+        mNickname = YamaPreferenceActivity.getNickName(mContext);
+    }
+
+    public YamaHttpClient(Context context, YamaInfo info) {
+        mContext = context;
+        mDateTime = info.getTime();
+        mAzimuth  = info.getAzimuth();
+        mLocation = info.getLocation();
+        mBatteryLevel = info.getBatteryLevel();
+        mHikiyama = info.getHikiyama();
+        mOmomatsuri = info.getOmatsuri();
+        mNickname = YamaPreferenceActivity.getNickName(mContext);
     }
 
     public JSONObject createJsonObject() {
@@ -42,7 +60,7 @@ public class YamaHttpClient implements Runnable {
         JSONObject retObj = new JSONObject();
         try {
             valueObj.put("heading_accuracy", 0.0);
-            valueObj.put("device_nickname", YamaPreferenceActivity.getNickName(mContext));
+            valueObj.put("device_nickname", mNickname);
             valueObj.put("horizontal_accuracy", mLocation.getAccuracy());
             valueObj.put("longitude", mLocation.getLongitude());
             valueObj.put("latitude", mLocation.getLatitude());
@@ -51,8 +69,8 @@ public class YamaHttpClient implements Runnable {
                     DateTimeUtilities.getDateAndTime(mDateTime));
             valueObj.put("battery_level", mBatteryLevel);
             retObj.put("location", valueObj);
-            retObj.put("hikiyama", YamaPreferenceActivity.getHikiyamaName(mContext));
-            retObj.put("omomatsuri", YamaPreferenceActivity.getOmatsuriName(mContext));
+            retObj.put("hikiyama", mHikiyama);
+            retObj.put("omomatsuri", mOmomatsuri);
         } catch (JSONException e) {
             Log.e(TAG, "createJsonObject() ", e);
             e.printStackTrace();
@@ -65,16 +83,33 @@ public class YamaHttpClient implements Runnable {
     public void run() {
         JSONObject sendObject = createJsonObject();
 
-        HttpClient objHttp = new DefaultHttpClient();
+        DefaultHttpClient objHttp = new DefaultHttpClient();
+        DefaultHttpRequestRetryHandler handler = new DefaultHttpRequestRetryHandler(5, false) {
+
+            @Override
+            public boolean retryRequest(IOException exception,
+                    int executionCount, HttpContext context) {
+                boolean retry = super.retryRequest(exception, executionCount, context);
+                if (retry) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return retry;
+            }
+        };
+        objHttp.setHttpRequestRetryHandler(handler);
+        
         HttpPost httpPost = new HttpPost(
                 YamaPreferenceActivity.getServerURIString(mContext));
-
+        
         try {
             httpPost.setHeader("Content-Type", "application/json");
             HttpEntity entity = new StringEntity(sendObject.toString());
             httpPost.setEntity(entity);
             HttpResponse objResponse = objHttp.execute(httpPost);
-
             if (objResponse.getStatusLine().getStatusCode() != HttpStatus.SC_CREATED) {
                 // TODO not created location object at Web Server. show warning? or retry?
                 debugHeaderMessage(objResponse);
