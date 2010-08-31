@@ -354,7 +354,7 @@ public class YamaLogService extends Service {
             openLogFile();
             createTimerTask();
 
-            mQueue = new ArrayBlockingQueue<YamaInfo>(10);
+            mQueue = new ArrayBlockingQueue<YamaInfo>(100);
             long pollingInterval = YamaPreferenceActivity.getPollingInterval((Context)YamaLogService.this);
             mTimer = new Timer();
             mTimer.schedule(checkSensorValues, 0, pollingInterval);
@@ -430,17 +430,18 @@ public class YamaLogService extends Service {
                 Log.d(TAG, "sendInfoServer.run");
                 Log.d(TAG, "mQueue.isEmpty()? " + mQueue.isEmpty());
                 while (!mQueue.isEmpty()) {
-                    YamaInfo info;
+                    YamaInfo info = mQueue.poll();
+                    if (info == null) {
+                        break;
+                    }
+
                     try {
-                        info = mQueue.take();
                         YamaHttpClient httpClient = new YamaHttpClient((Context)YamaLogService.this, info); 
                         Thread th = new Thread(httpClient);
                         th.start();
-                        // Wait here
-                        Thread.sleep(500); // 500 ms
+                        Thread.sleep(50); // Wait 50 ms here
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        Log.d(TAG, e.getMessage());
                     }
                     Log.d(TAG, "mQueue.isEmpty()? " + mQueue.isEmpty());
                 }
@@ -489,11 +490,11 @@ public class YamaLogService extends Service {
                     // then it is not inserted to queue for pushing.
                     Log.d(TAG,
                             "GPS is not updated after previous pushing data. So we doesn't push data now.");
-                    return;
+                    // TODO return ;
                 } else if (mCurrentLocation.getAccuracy() >= (float)minRequiredAccuragy) {
                     // If GPS info doesn't have enough accuracy, then it is not inserted to queue for pushing.
                     Log.d(TAG, "Current accuracy is more than required accuracy. So use the previous value.");
-                    return ;
+                    // TODO return ;
                 }
                 
                 // insert YamaInfo to queue.
@@ -572,8 +573,8 @@ public class YamaLogService extends Service {
         if (isSendInfoServerRunning) {
             sendInfoServer.cancel();
             sendInfoServer = null;
-            isSendInfoServerRunning = false;
         }
+        isSendInfoServerRunning = false;
 
         if (checkSensorValues != null) {
             checkSensorValues.cancel();

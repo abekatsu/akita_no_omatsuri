@@ -111,7 +111,6 @@ public class YamaHttpClient implements Runnable {
             httpPost.setEntity(entity);
             HttpResponse objResponse = objHttp.execute(httpPost);
             if (objResponse.getStatusLine().getStatusCode() != HttpStatus.SC_CREATED) {
-                // TODO not created location object at Web Server. show warning? or retry?
                 debugHeaderMessage(objResponse);
             }
             

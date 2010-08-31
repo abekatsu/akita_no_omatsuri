@@ -19,6 +19,7 @@
            android:process=":yamalogservice"
            android:label="Yama Log Service"
            android:icon="@drawable/icon"
+           android:debuggable="true"
            android:enabled="true"
            android:exported="true" />
 
