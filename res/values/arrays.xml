@@ -1,27 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <string-array name="neighborhood_associate_entries">
-        <item>菅沢丁内若者</item>
-        <item>本町通り</item>
-        <item>西勝楽町若者</item>
-        <item>山根谷地町旭会若者</item>
-        <item>横町若者</item>
-        <item>桜美町若者</item>
-        <item>上新町若者</item>
-        <item>七日町丁内</item>
-        <item>中央通り</item>
-        <item>東部若者</item>
-        <item>駅通り若者</item>
-        <item>駅前若者</item>
-        <item>岩瀬若者一同</item>
-        <item>大塚若者</item>
-        <item>西部若者</item>
-        <item>北部丁内若者</item>
-        <item>川原町若者</item>
-        <item>下岩瀬町若者</item>
+    <!--  TODO get omatsuri list from http://labs2.netpersons.co.jp/omatsuris.json -->
+    <string-array name="omatsuri_name_entries">
+        <item>Kakunodate no Omatsuri</item>
+        <item>Kantou no Omatsuri</item>
+        <item>Hideki Matsuri</item>
+    </string-array>
+    
+    <string-array name="omatsuri_name_values">
+        <item>kakunodate</item>
+        <item>kantou</item>
+        <item>kobayashi</item>
     </string-array>
 
-    <string-array name="neiglist_associate_values">
+    <!--  TODO get omatsuri list from http://labs2.netpersons.co.jp/omatsuris.json -->
+    <string-array name="hikiyama_entries">
+        <item>Sugazawa</item>
+        <item>Honcho</item>
+        <item>Nishikatsuraku</item>
+        <item>Yamane</item>
+        <item>Yokomachi</item>
+        <item>Sakuramicho</item>
+        <item>Kamishinmachi</item>
+        <item>Nanokamachi</item>
+        <item>Chuo</item>
+        <item>Tobu</item>
+        <item>Ekidori</item>
+        <item>Ekimae</item>
+        <item>Iwase</item>
+        <item>Otsuka</item>
+        <item>Seibu</item>
+        <item>Hokubu</item>
+        <item>Kawaramachi</item>
+        <item>Shimoiwase</item>
+    </string-array>
+    
+    <string-array name="hikiyama_values">
         <item>sugazawa</item>
         <item>honcho</item>
         <item>nishikatsuraku</item>
@@ -99,8 +113,7 @@
         <item>200 m (Default)</item>
         <item>500 m</item>        
         <item> 1 km</item>
-
-        <item>500 m</item>
+        <item>10 km</item>
     </string-array>
 
     <string-array name="gps_min_required_accuracy_values">
@@ -110,6 +123,7 @@
         <item>200.0</item>
         <item>500.0</item>
         <item>1000.0</item>
+        <item>10000.0</item>        
     </string-array>
     
 </resources>

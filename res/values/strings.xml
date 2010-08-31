@@ -1,63 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Hello World, YamaLocActivity!</string>
-    <string name="app_name">曳山位置情報</string>
-    <string name="azimuth">方位角:</string>
-    <string name="current_time">時刻:</string>
-    <string name="location">現在地:</string>
+    <string name="app_name">Akita No Omatsuri</string>
+    <string name="azimuth">azimuth: </string>
+    <string name="current_time">timestamp: </string>
+    <string name="location">location:</string>
 
     <string name="menu_start">Start</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_save">Save</string>
     <string name="menu_quit">Quit</string>
-    <string name="menu_preference">設定</string>
+    <string name="menu_preference">Preferences</string>
 
     <string name="log_saved_to_sdcard">Log is saved to SD card.</string>
     <string name="yama_location_service_registered">Location Service Registered</string>
     <string name="yama_location_service_unregistered">Location Service Unregistered</string>
 
-    <string name="status_now_logging">記録開始しました</string>
-    <string name="error_unable_to_start_logging">記録起動に失敗しました</string>
-    <string name="status_stop_logging">記録停止しました</string>
-    <string name="status_service_disconnected">記録停止しました</string>
+    <string name="status_now_logging">Start logging now</string>
+    <string name="error_unable_to_start_logging">Failure of logging</string>
+    <string name="status_stop_logging">Stop logging now</string>
+    <string name="status_service_disconnected">Location Service disconnected</string>
 
-    <string name="akita_no_omatrusi_preference_title">秋田のお祭り 設定画面</string>
-    <string name="pref_neighborhood_title">町内会の設定</string>
-    <string name="neighborhood_associate_title">町内会の設定</string>
-    <string name="neighborhood_associate_summary">summary</string>
-    <string name="neighborhood_associate_dialogtitle">Dialog Title (町内会)</string>
-
-    <string name="device_nickname_title">Put Device Nickname</string>
-    <string name="device_nickname_summary">identify device at Web Server</string>
-        
-    <string name="isLocalServer_title">Use local server.</string>
-    <string name="isLocalServer_summary">Use local server as the destination Web Server of posting data.</string>
-    
-    <string name="test_local_server_title">Local server\'s address</string>
-    <string name="test_local_server_summary">URI of local server for testing</string>
-    
-    <string name="polling_interval_title">Polling Interval</string>
-    <string name="polling_interval_summary">sepcify interval to get GPS and azimuth information.</string>
-    <string name="polling_interval_dialogtitle">Set Polling Interval</string>
-    
-    <string name="pushing_interval_title">Pushing Interval</string>
-    <string name="pushing_interval_summary">sepcify interval to get GPS and azimuth.</string>
-    <string name="pushing_interval_dialogtitle">Set Pushing Interval</string>
-
-    <string name="gps_update_minDistance_title">Min Distace for GPS update.</string>
-    <string name="gps_update_minDistance_summary">Min distance for GPS manager updating</string>
-    <string name="gps_update_minDistance_dialogtitle">Minimal distace for updateing</string>
-    
-    <string name="gps_min_required_accuracy_title">Min required GPS accuracy</string>
-    <string name="gps_min_required_accuracy_summary">min accuracy to update GPS</string>
-    <string name="gps_min_required_accuracy_dialogtitle">Min required accuracy</string>
-
-    <string name="default_choumei">ekimae</string>    
+    <string name="default_hikiyama">ekimae</string>    
     <string name="default_test_local_server">http://192.168.1.102:8080/</string>
     <string name="default_polling_interval">60000</string>
     <string name="default_pushing_interval">60000</string>
     <string name="default_gps_update_minDistance">5.0</string>
     <string name="default_gps_min_required_accuracy">200.0</string>
-    <string name="default_omatsuri_name">kakunodate</string>
     
+    <string name="akita_no_omatrusi_omatsuri_preferences">Preferences Omatsuri</string>
+    <string name="akita_no_omatrusi_location_preferences">Preferences Location</string>
+    <string name="akita_no_omatsuri_interval_preferences">Preferences Interval</string>
+    <string name="akita_no_omatsuri_devicename_preferences">Preference Device name</string>
+    <string name="akita_no_omatrusi_debug_preferences">Debug settings</string>
+    
+    <string name="omatsuri">Omatsuri</string>
+    <string name="omatsuri_name_key">omatsuri_name</string>
+    <string name="default_omatsuri_name">kakunodate</string>
+    <string name="omatsuri_name_summary">Select Omatsuri from list.</string>
+    <string name="omatsuri_name_dialogtitle">List Omatsuri</string>
+    
+    <string name="hikiyama_key">hikiyama_name</string>
+    <string name="hikiyama_title">Setting Hikiyama</string>
+    <string name="hikiyama_summary">Select Omatsuri firstly</string>
+    <string name="hikiyama_dialogtitle">List Hikiyama</string>
+    
+    <string name="gps_update_minDistance_key">gps_update_minDistance</string>
+    <string name="gps_update_minDistance_title">Min Distace for GPS update.</string>
+    <string name="gps_update_minDistance_summary">Min distance for GPS manager updating</string>
+    <string name="gps_update_minDistance_dialogtitle">Minimal distace for updateing</string>
+    
+    <string name="gps_min_required_accuracy_key">gps_min_required_accuracy</string>
+    <string name="gps_min_required_accuracy_title">Min required GPS accuracy</string>
+    <string name="gps_min_required_accuracy_summary">min accuracy to update GPS</string>
+    <string name="gps_min_required_accuracy_dialogtitle">Min required accuracy</string>
+    
+    <string name="polling_interval_key">polling_interval</string>
+    <string name="polling_interval_title">Polling Interval</string>
+    <string name="polling_interval_summary">sepcify interval to get GPS and azimuth information.</string>
+    <string name="polling_interval_dialogtitle">Set Polling Interval</string>
+    
+    <string name="pushing_interval_key">pushing_interval</string>
+    <string name="pushing_interval_title">Pushing Interval</string>
+    <string name="pushing_interval_summary">sepcify interval to get GPS and azimuth.</string>
+    <string name="pushing_interval_dialogtitle">Set Pushing Interval</string>
+    
+    <string name="device_nickname_key">device_nickname</string>    
+    <string name="device_nickname_title">Put Device Nickname</string>
+    <string name="device_nickname_summary">identify device at Web Server</string>
+    
+    <!--  here are preferences for debug. -->
+    <string name="isLocalServer_title">Use local server.</string>
+    <string name="isLocalServer_summary">Use local server as the destination Web Server of posting data.</string>
+    
+    <string name="test_local_server_title">Local server\'s address</string>
+    <string name="test_local_server_summary">URI of local server for testing</string>
+
 </resources>

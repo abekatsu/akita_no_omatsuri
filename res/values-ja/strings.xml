@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, YamaLocActivity!</string>
+    <string name="app_name">秋田のお祭り</string>
+    <string name="azimuth">方位角:</string>
+    <string name="current_time">時刻:</string>
+    <string name="location">現在地:</string>
+
+    <string name="menu_start">開始</string>
+    <string name="menu_stop">停止</string>
+    <string name="menu_save">SDカードに保存</string>
+    <string name="menu_quit">終了</string>
+    <string name="menu_preference">設定</string>
+
+    <string name="log_saved_to_sdcard">ログをSDカードに保存しました</string>
+    <string name="yama_location_service_registered">位置情報収集サービスをシステムに登録しました</string>
+    <string name="yama_location_service_unregistered">位置情報収集サービスがシステムから解放されました</string>
+
+    <string name="status_now_logging">記録開始しました</string>
+    <string name="error_unable_to_start_logging">記録起動に失敗しました</string>
+    <string name="status_stop_logging">記録停止しました</string>
+    <string name="status_service_disconnected">記録停止しました</string>
+
+    <string name="akita_no_omatrusi_omatsuri_preferences">お祭り設定</string>
+    <string name="akita_no_omatrusi_location_preferences">位置設定</string>
+    <string name="akita_no_omatsuri_interval_preferences">時間間隔設定</string>
+    <string name="akita_no_omatsuri_devicename_preferences">デバイス名設定</string>
+    <string name="akita_no_omatrusi_debug_preferences">デバッグ設定</string>
+    
+    <string name="omatsuri">お祭り</string>
+    <string name="omatsuri_name_summary">お祭りを設定して下さい</string>
+    <string name="omatsuri_name_dialogtitle">お祭りの一覧</string>
+    
+    <string name="hikiyama_title">曳山</string>
+    <string name="hikiyama_summary">最初にお祭りを設定して下さい</string>
+    <string name="hikiyama_summary_2nd">曳山を設定して下さい</string>
+    <string name="hikiyama_dialogtitle">曳山の一覧</string>
+    
+    <string name="gps_update_minDistance_title">距離</string>
+    <string name="gps_update_minDistance_summary">位置更新通知される最小移動距離間隔を指定して下さい</string>
+    <string name="gps_update_minDistance_dialogtitle">最小移動距離間隔指定</string>
+    
+    <string name="gps_min_required_accuracy_title">精度</string>
+    <string name="gps_min_required_accuracy_summary">位置更新通知される最大許容精度を指定して下さい</string>
+    <string name="gps_min_required_accuracy_dialogtitle">最大許容精度</string>
+    
+    <string name="polling_interval_title">情報収集間隔</string>
+    <string name="polling_interval_summary">位置情報の収集間隔を指定してください</string>
+    <string name="polling_interval_dialogtitle">位置情報収集間隔</string>
+    
+    <string name="pushing_interval_title">情報送信間隔</string>
+    <string name="pushing_interval_summary">サーバーへの位置情報送信間隔を指定してください</string>
+    <string name="pushing_interval_dialogtitle">位置情報送信間隔</string>
+    
+    <string name="device_nickname_title">デバイス名</string>
+    <string name="device_nickname_summary">サーバーでのデバイス識別用名称を指定して下さい</string>
+    
+    <!--  here are preferences for debug. -->
+    <string name="isLocalServer_title">Use local server.</string>
+    <string name="isLocalServer_summary">Use local server as the destination Web Server of posting data.</string>
+    
+    <string name="test_local_server_title">Local server\'s address</string>
+    <string name="test_local_server_summary">URI of local server for testing</string>
+    
+
+</resources>

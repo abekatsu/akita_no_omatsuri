@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--  TODO get omatsuri list from http://labs2.netpersons.co.jp/omatsuris.json -->
+    <string-array name="omatsuri_name_entries">
+        <item>角館のお祭り</item>
+        <item>竿灯祭り</item>
+        <item>ひでき祭り</item>
+    </string-array>
+    
+    <!--  TODO get omatsuri list via HTTP (http://labs2.netpersons.co.jp/omatsuris.json) -->
+    <string-array name="hikiyama_entries">
+        <item>菅沢丁内若者</item>
+        <item>本町通り</item>
+        <item>西勝楽町若者</item>
+        <item>山根谷地町旭会若者</item>
+        <item>横町若者</item>
+        <item>桜美町若者</item>
+        <item>上新町若者</item>
+        <item>七日町丁内</item>
+        <item>中央通り</item>
+        <item>東部若者</item>
+        <item>駅通り若者</item>
+        <item>駅前若者</item>
+        <item>岩瀬若者一同</item>
+        <item>大塚若者</item>
+        <item>西部若者</item>
+        <item>北部丁内若者</item>
+        <item>川原町若者</item>
+        <item>下岩瀬町若者</item>
+    </string-array>
+    
+    <string-array name="polling_interval_entries">
+        <item> 5 秒</item>
+        <item>30 秒</item>
+        <item>60 秒 (初期値)</item>
+        <item> 2 分</item>
+        <item> 5 分</item>
+        <item>10 分</item>        
+    </string-array>
+    
+    <string-array name="polling_interval_values">
+        <item>5000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>300000</item>
+        <item>600000</item>
+    </string-array>
+
+    <string-array name="pushing_interval_entries">
+        <item> 5 秒</item>
+        <item>30 秒</item>
+        <item> 1 分 (初期値)</item>
+        <item> 2 分</item>
+        <item> 5 分</item>
+        <item>10 分</item>        
+    </string-array>
+    
+    <string-array name="pushing_interval_values">
+        <item>5000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>300000</item>
+        <item>600000</item>
+    </string-array>
+
+    <string-array name="gps_update_minDistance_entries">
+        <item>  1 m</item>
+        <item>  5 m (初期値)</item>
+        <item> 10 m </item>
+        <item> 50 m</item>
+        <item>100 m</item>
+        <item>500 m</item>
+    </string-array>
+    
+    <string-array name="gps_update_minDistance_values">
+        <item>1.0</item>
+        <item>5.0</item>
+        <item>10.0</item>
+        <item>50.0</item>
+        <item>100.0</item>
+        <item>500.0</item>
+    </string-array>
+    
+    <string-array name="gps_min_required_accuracy_entries">
+        <item> 10 m</item>        
+        <item> 50 m</item>
+        <item>100 m</item>
+        <item>200 m (初期値)</item>
+        <item>500 m</item>        
+        <item> 1 km</item>
+
+        <item>500 m</item>
+    </string-array>
+
+    <string-array name="gps_min_required_accuracy_values">
+        <item>10.0</item>
+        <item>50.0</item>
+        <item>100.0</item>
+        <item>200.0</item>
+        <item>500.0</item>
+        <item>1000.0</item>
+    </string-array>
+    
+    
+    
+</resources>

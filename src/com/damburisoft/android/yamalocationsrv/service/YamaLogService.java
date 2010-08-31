@@ -141,14 +141,8 @@ public class YamaLogService extends Service {
 
         public void onLocationChanged(Location location) {
             Log.d(TAG, "myLocationListener.onLocationChanged()");
+            mCurrentLocation = location;
 
-            double minRequiredAccuragy = YamaPreferenceActivity.getMinRequiredAccuracy((Context)YamaLogService.this);
-            if (location.getAccuracy() < (float)minRequiredAccuragy) {
-                mCurrentLocation = location;
-            } else {
-                Log.d(TAG, "Current accuracy is more than required accuracy. So use the previous value.");
-            }
-            
             float latitude = new Double(mCurrentLocation.getLatitude()).floatValue();
             float longitude = new Double(mCurrentLocation.getLongitude()).floatValue();
             float altitude = new Double(mCurrentLocation.getAltitude()).floatValue();
@@ -435,7 +429,7 @@ public class YamaLogService extends Service {
             public void run() {
                 Log.d(TAG, "sendInfoServer.run");
                 Log.d(TAG, "mQueue.isEmpty()? " + mQueue.isEmpty());
-                while (mQueue.isEmpty() != true) {
+                while (!mQueue.isEmpty()) {
                     YamaInfo info;
                     try {
                         info = mQueue.take();
@@ -448,6 +442,7 @@ public class YamaLogService extends Service {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+                    Log.d(TAG, "mQueue.isEmpty()? " + mQueue.isEmpty());
                 }
             }
         };
@@ -466,16 +461,11 @@ public class YamaLogService extends Service {
             public void run() {
                 long currentDateTime = (new Date()).getTime();
                 
+                // Anyway, write location and azimuth information to log file.
                 if (mCurrentLocation == null) {
                     Log.d(TAG, "Location has not been settled by GPS.");
                     mCurrentLocation = mLocationManager
                             .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                }
-
-                if (mPreviousGPSTime >= mCurrentLocation.getTime()) {
-                    Log.d(TAG,
-                            "GPS is not updated after previous pushing data. So we doesn't push data now.");
-                    return;
                 }
                 
                 mCurrentAzimuth = calcurateAzimuth();
@@ -483,7 +473,7 @@ public class YamaLogService extends Service {
                     Log.d(TAG, "cannot obtain azimuth.");
                     return;
                 }
-
+                
                 String logString = createLogInfo(currentDateTime);
                 try {
                     mFos.write(logString.getBytes());
@@ -493,6 +483,20 @@ public class YamaLogService extends Service {
                     e.printStackTrace();
                 }
                 
+                double minRequiredAccuragy = YamaPreferenceActivity.getMinRequiredAccuracy((Context)YamaLogService.this);
+                if (mPreviousGPSTime >= mCurrentLocation.getTime()) {
+                    // If a time-stamp of GPS is not newer of previous one, 
+                    // then it is not inserted to queue for pushing.
+                    Log.d(TAG,
+                            "GPS is not updated after previous pushing data. So we doesn't push data now.");
+                    return;
+                } else if (mCurrentLocation.getAccuracy() >= (float)minRequiredAccuragy) {
+                    // If GPS info doesn't have enough accuracy, then it is not inserted to queue for pushing.
+                    Log.d(TAG, "Current accuracy is more than required accuracy. So use the previous value.");
+                    return ;
+                }
+                
+                // insert YamaInfo to queue.
                 String hikiyama = YamaPreferenceActivity.getHikiyamaName(YamaLogService.this);
                 String omomatsuri = YamaPreferenceActivity.getOmatsuriName(YamaLogService.this);
                 YamaInfo info = new YamaInfo(omomatsuri, hikiyama, currentDateTime, 
@@ -500,11 +504,9 @@ public class YamaLogService extends Service {
                 try {
                     mQueue.put(info);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     Log.d(TAG, e.getMessage());
                     e.printStackTrace();
                 }
-                
                 mPreviousGPSTime = mCurrentLocation.getTime();
             }
 
