@@ -32,21 +32,12 @@
     <string-array name="polling_interval_entries">
         <item> 5 秒</item>
         <item>30 秒</item>
-        <item>60 秒 (初期値)</item>
+        <item> 1 分 (初期値)</item>
         <item> 2 分</item>
         <item> 5 分</item>
         <item>10 分</item>        
     </string-array>
     
-    <string-array name="polling_interval_values">
-        <item>5000</item>
-        <item>30000</item>
-        <item>60000</item>
-        <item>120000</item>
-        <item>300000</item>
-        <item>600000</item>
-    </string-array>
-
     <string-array name="pushing_interval_entries">
         <item> 5 秒</item>
         <item>30 秒</item>
@@ -54,15 +45,6 @@
         <item> 2 分</item>
         <item> 5 分</item>
         <item>10 分</item>        
-    </string-array>
-    
-    <string-array name="pushing_interval_values">
-        <item>5000</item>
-        <item>30000</item>
-        <item>60000</item>
-        <item>120000</item>
-        <item>300000</item>
-        <item>600000</item>
     </string-array>
 
     <string-array name="gps_update_minDistance_entries">

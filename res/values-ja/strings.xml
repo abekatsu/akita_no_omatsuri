@@ -55,7 +55,26 @@
     <string name="device_nickname_title">デバイス名</string>
     <string name="device_nickname_summary">サーバーでのデバイス識別用名称を指定して下さい</string>
     
+    <string name="minute">分</string>
+    <string name="second">秒</string>
+    
     <!--  here are preferences for debug. -->
+    <string name="debug_gps_update_minDistance_title">距離（キーボード入力）</string>
+    <string name="debug_gps_update_minDistance_summary">位置更新通知される最小移動距離間隔を指定して下さい</string>
+    <string name="debug_gps_update_minDistance_dialogtitle">最小移動距離間隔指定</string>
+    
+    <string name="debug_gps_min_required_accuracy_title">精度（キーボード入力）</string>
+    <string name="debug_gps_min_required_accuracy_summary">位置更新通知される最大許容精度を指定して下さい</string>
+    <string name="debug_gps_min_required_accuracy_dialogtitle">最大許容精度</string>
+    
+    <string name="debug_polling_interval_title">情報収集間隔（キーボード入力）</string>
+    <string name="debug_polling_interval_summary">位置情報の収集間隔を指定してください</string>
+    <string name="debug_polling_interval_dialogtitle">位置情報収集間隔（秒単位）</string>
+    
+    <string name="debug_pushing_interval_title">情報送信間隔（キーボード入力）</string>
+    <string name="debug_pushing_interval_summary">サーバーへの位置情報送信間隔を指定してください</string>
+    <string name="debug_pushing_interval_dialogtitle">位置情報送信間隔（秒単位）</string>
+ 
     <string name="isLocalServer_title">Use local server.</string>
     <string name="isLocalServer_summary">Use local server as the destination Web Server of posting data.</string>
     

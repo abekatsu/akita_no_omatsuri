@@ -460,14 +460,17 @@ public class YamaLogService extends Service {
 
             @Override
             public void run() {
-                long currentDateTime = (new Date()).getTime();
-                
                 // Anyway, write location and azimuth information to log file.
                 if (mCurrentLocation == null) {
                     Log.d(TAG, "Location has not been settled by GPS.");
                     mCurrentLocation = mLocationManager
                             .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (mCurrentLocation == null) {
+                        return ;
+                    }
                 }
+                
+                long currentDateTime = (new Date()).getTime();
                 
                 mCurrentAzimuth = calcurateAzimuth();
                 if (mCurrentAzimuth == Double.NaN) {
@@ -542,14 +545,20 @@ public class YamaLogService extends Service {
 
             private String createLogInfo(long currentDateTime) {
                 StringBuffer sb = new StringBuffer();
+                // TODO must review after testing
+                
                 sb.append(DateTimeUtilities.getDateAndTime(currentDateTime));
                 sb.append(",");
-                sb.append((float) mCurrentLocation.getLongitude());
-                sb.append(",");
-                sb.append((float) mCurrentLocation.getLatitude());
-                sb.append(",");
-                sb.append((float) mCurrentLocation.getAccuracy());
-                sb.append(",");
+                if (mCurrentLocation == null) {
+                    sb.append("No Location");
+                } else {
+                    sb.append((float) mCurrentLocation.getLongitude());
+                    sb.append(",");
+                    sb.append((float) mCurrentLocation.getLatitude());
+                    sb.append(",");
+                    sb.append((float) mCurrentLocation.getAccuracy());
+                    sb.append(",");
+                }
                 sb.append((float) mCurrentAzimuth);
                 sb.append(",");
                 sb.append((float) 0.0);

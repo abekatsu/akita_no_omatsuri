@@ -23,8 +23,8 @@
 
     <string name="default_hikiyama">ekimae</string>    
     <string name="default_test_local_server">http://192.168.1.102:8080/</string>
-    <string name="default_polling_interval">60000</string>
-    <string name="default_pushing_interval">60000</string>
+    <string name="default_polling_interval">60</string>
+    <string name="default_pushing_interval">60</string>
     <string name="default_gps_update_minDistance">5.0</string>
     <string name="default_gps_min_required_accuracy">200.0</string>
     
@@ -69,7 +69,31 @@
     <string name="device_nickname_title">Put Device Nickname</string>
     <string name="device_nickname_summary">identify device at Web Server</string>
     
+    <string name="minute">min.</string>
+    <string name="second">sec.</string>
+    
     <!--  here are preferences for debug. -->
+    <string name="debug_gps_update_minDistance_key">debug_gps_update_minDistance</string>
+    <string name="debug_gps_update_minDistance_title">Min Distace for GPS update (Keyboard)</string>
+    <string name="debug_gps_update_minDistance_summary">Min distance for GPS manager updating</string>
+    <string name="debug_gps_update_minDistance_dialogtitle">Minimal distace for updateing</string>
+    
+    <string name="debug_gps_min_required_accuracy_key">debug_gps_min_required_accuracy (Keyboard)</string>
+    <string name="debug_gps_min_required_accuracy_title">Min required GPS accuracy</string>
+    <string name="debug_gps_min_required_accuracy_summary">min accuracy to update GPS</string>
+    <string name="debug_gps_min_required_accuracy_dialogtitle">Min required accuracy</string>
+    
+    <string name="debug_polling_interval_key">debug_polling_interval</string>
+    <string name="debug_polling_interval_title">Polling Interval (Keyboard)</string>
+    <string name="debug_polling_interval_summary">sepcify interval to get GPS and azimuth information.</string>
+    <string name="debug_polling_interval_dialogtitle">Set Polling Interval by second</string>
+    
+    <string name="debug_pushing_interval_key">debug_pushing_interval</string>
+    <string name="debug_pushing_interval_title">Pushing Interval</string>
+    <string name="debug_pushing_interval_summary">sepcify interval to get GPS and azimuth.</string>
+    <string name="debug_pushing_interval_dialogtitle">Set Pushing Interval by second</string>
+    
+    
     <string name="isLocalServer_title">Use local server.</string>
     <string name="isLocalServer_summary">Use local server as the destination Web Server of posting data.</string>
     

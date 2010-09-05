@@ -20,45 +20,35 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/akita_no_omatrusi_location_preferences">
-        <ListPreference
-            android:key="@string/gps_update_minDistance_key"
+        <EditTextPreference
+            android:key="@string/debug_gps_update_minDistance_key"
             android:defaultValue="@string/default_gps_update_minDistance"
-            android:title="@string/gps_update_minDistance_title"
-            android:summary="@string/gps_update_minDistance_summary"
-            android:dialogTitle="@string/gps_update_minDistance_dialogtitle"
-            android:entries="@array/gps_update_minDistance_entries"
-            android:entryValues="@array/gps_update_minDistance_values" />
+            android:title="@string/debug_gps_update_minDistance_title"
+            android:summary="@string/debug_gps_update_minDistance_summary"
+            android:dialogTitle="@string/debug_gps_update_minDistance_dialogtitle" />
             
-        <ListPreference
-            android:key="@string/gps_min_required_accuracy_key"
+        <EditTextPreference
+            android:key="@string/debug_gps_min_required_accuracy_key"
             android:defaultValue="@string/default_gps_min_required_accuracy"
-            android:title="@string/gps_min_required_accuracy_title"
-            android:summary="@string/gps_min_required_accuracy_summary"
-            android:dialogTitle="@string/gps_min_required_accuracy_dialogtitle"
-            android:entries="@array/gps_min_required_accuracy_entries"
-            android:entryValues="@array/gps_min_required_accuracy_values" />
-
+            android:title="@string/debug_gps_min_required_accuracy_title"
+            android:summary="@string/debug_gps_min_required_accuracy_summary"
+            android:dialogTitle="@string/debug_gps_min_required_accuracy_dialogtitle" />
+            
     </PreferenceCategory>
     
     <PreferenceCategory android:title="@string/akita_no_omatsuri_interval_preferences">
-        <ListPreference 
-            android:key="@string/polling_interval_key"
-            android:defaultValue="@string/default_polling_interval"
-            android:title="@string/polling_interval_title"
-            android:summary="@string/polling_interval_summary"
-            android:dialogTitle="@string/polling_interval_dialogtitle"
-            android:entries="@array/polling_interval_entries"
-            android:entryValues="@array/polling_interval_values" />
-
-        <ListPreference 
-            android:key="@string/pushing_interval_key"
-            android:defaultValue="@string/default_pushing_interval"
-            android:title="@string/pushing_interval_title"
-            android:summary="@string/pushing_interval_summary"
-            android:dialogTitle="@string/pushing_interval_dialogtitle"
-            android:entries="@array/pushing_interval_entries"
-            android:entryValues="@array/pushing_interval_values" />
-    
+        <EditTextPreference 
+            android:key="@string/debug_polling_interval_key"
+            android:defaultValue="@string/default_polling_interval"            
+            android:title="@string/debug_polling_interval_title"
+            android:summary="@string/debug_polling_interval_summary"
+            android:dialogTitle="@string/debug_polling_interval_dialogtitle" />
+        <EditTextPreference 
+            android:key="@string/debug_pushing_interval_key"
+            android:defaultValue="@string/default_pushing_interval"            
+            android:title="@string/debug_pushing_interval_title"
+            android:summary="@string/debug_pushing_interval_summary"
+            android:dialogTitle="@string/debug_pushing_interval_dialogtitle" />
     </PreferenceCategory>
     
     <PreferenceCategory android:title="@string/akita_no_omatsuri_devicename_preferences">
@@ -69,6 +59,7 @@
     </PreferenceCategory>
     
     <PreferenceCategory android:title="@string/akita_no_omatrusi_debug_preferences">
+    
         <CheckBoxPreference 
             android:key="isLocalServer"
             android:defaultValue="false" 
