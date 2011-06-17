@@ -18,6 +18,19 @@
             android:entryValues="@array/hikiyama_values" />
             
     </PreferenceCategory>
+    
+    <PreferenceCategory android:title="@string/akita_no_omatrusi_user_preferences">
+        <EditTextPreference 
+            android:key="@string/user_name_key"
+            android:title="@string/user_name_title"
+            android:summary="@string/user_name_summary" />
+        <EditTextPreference
+            android:password="true"
+            android:key="@string/user_password_key"
+            android:title="@string/user_password_title"
+            android:summary="@string/user_password_summary" />
+    </PreferenceCategory>
+    
 
     <PreferenceCategory android:title="@string/akita_no_omatrusi_location_preferences">
         <ListPreference

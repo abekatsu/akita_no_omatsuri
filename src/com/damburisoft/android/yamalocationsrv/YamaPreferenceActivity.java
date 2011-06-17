@@ -22,6 +22,7 @@ public class YamaPreferenceActivity extends PreferenceActivity implements Shared
         addPreferencesFromResource(R.xml.preference);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         setOmatsuriSummary(settings);
+        setUsernameSummary(settings);
         setHikiyamaSummary(settings);
         setMinDistanceSummary(settings);
         setMinRequiredAccuracySummary(settings);
@@ -49,6 +50,8 @@ public class YamaPreferenceActivity extends PreferenceActivity implements Shared
                 || key.equals(getString(R.string.hikiyama_key))) {
             setOmatsuriSummary(sharedPreferences);
             setHikiyamaSummary(sharedPreferences);
+        } else if (key.equals(getString(R.string.user_name_key))) {
+            setUsernameSummary(sharedPreferences);
         } else if (key.equals(getString(R.string.gps_update_minDistance_key))) {        
             setMinDistanceSummary(sharedPreferences);
         } else if (key.equals(getString(R.string.gps_min_required_accuracy_key))) {
@@ -134,6 +137,20 @@ public class YamaPreferenceActivity extends PreferenceActivity implements Shared
         Preference pref = findPreference(key);
         pref.setSummary(summary);
     }
+    
+    private void setUsernameSummary(SharedPreferences settings) {
+        String key = getString(R.string.user_name_key);
+        String value = getPreferencesString(this, key, "");
+        Preference pref = findPreference(key);
+        String summary;
+        if (settings.contains(key)) {
+            summary = "Username: " + value;
+        } else {
+            summary = getString(R.string.user_name_summary);
+        }
+        pref.setSummary(summary);
+    }
+
     
     private void setDeviceNicknameSummary(SharedPreferences settings) {
         String key = getString(R.string.device_nickname_key);

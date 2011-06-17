@@ -22,6 +22,7 @@
     <string name="status_service_disconnected">記録停止しました</string>
 
     <string name="akita_no_omatrusi_omatsuri_preferences">お祭り設定</string>
+    <string name="akita_no_omatrusi_user_preferences">ユーザ設定</string>
     <string name="akita_no_omatrusi_location_preferences">位置設定</string>
     <string name="akita_no_omatsuri_interval_preferences">時間間隔設定</string>
     <string name="akita_no_omatsuri_devicename_preferences">デバイス名設定</string>
@@ -32,16 +33,22 @@
     <string name="omatsuri_name_dialogtitle">お祭りの一覧</string>
     
     <string name="hikiyama_title">曳山</string>
-    <string name="hikiyama_summary">最初にお祭りを設定して下さい</string>
-    <string name="hikiyama_summary_2nd">曳山を設定して下さい</string>
+    <string name="hikiyama_summary">最初にお祭りを設定してください</string>
+    <string name="hikiyama_summary_2nd">曳山を設定してください</string>
     <string name="hikiyama_dialogtitle">曳山の一覧</string>
     
+    <string name="user_name_title">ユーザー名</string>
+    <string name="user_name_summary">登録したユーザー名を入力してください</string>
+    
+    <string name="user_password_title">パスワード</string>
+    <string name="user_password_summary">パスワードを入力してください</string>
+    
     <string name="gps_update_minDistance_title">距離</string>
-    <string name="gps_update_minDistance_summary">位置更新通知される最小移動距離間隔を指定して下さい</string>
+    <string name="gps_update_minDistance_summary">位置更新通知される最小移動距離間隔を指定してください</string>
     <string name="gps_update_minDistance_dialogtitle">最小移動距離間隔指定</string>
     
     <string name="gps_min_required_accuracy_title">精度</string>
-    <string name="gps_min_required_accuracy_summary">位置更新通知される最大許容精度を指定して下さい</string>
+    <string name="gps_min_required_accuracy_summary">位置更新通知される最大許容精度を指定してください</string>
     <string name="gps_min_required_accuracy_dialogtitle">最大許容精度</string>
     
     <string name="polling_interval_title">情報収集間隔</string>

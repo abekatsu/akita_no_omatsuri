@@ -29,6 +29,7 @@
     <string name="default_gps_min_required_accuracy">200.0</string>
     
     <string name="akita_no_omatrusi_omatsuri_preferences">Preferences Omatsuri</string>
+    <string name="akita_no_omatrusi_user_preferences">Preferences User</string>
     <string name="akita_no_omatrusi_location_preferences">Preferences Location</string>
     <string name="akita_no_omatsuri_interval_preferences">Preferences Interval</string>
     <string name="akita_no_omatsuri_devicename_preferences">Preference Device name</string>
@@ -44,6 +45,15 @@
     <string name="hikiyama_title">Setting Hikiyama</string>
     <string name="hikiyama_summary">Select Omatsuri firstly</string>
     <string name="hikiyama_dialogtitle">List Hikiyama</string>
+    
+    <string name="user_name_key">user_name_key</string>
+    <string name="user_name_title">Username</string>
+    <string name="user_name_summary">Enter the registered username</string>
+    
+    <string name="user_password_key">user_password_key</string>
+    <string name="user_password_title">Password</string>
+    <string name="user_password_summary">Enter your password</string>
+    
     
     <string name="gps_update_minDistance_key">gps_update_minDistance</string>
     <string name="gps_update_minDistance_title">Min Distace for GPS update.</string>
