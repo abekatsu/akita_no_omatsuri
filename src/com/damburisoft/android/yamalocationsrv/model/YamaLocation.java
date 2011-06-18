@@ -1,4 +1,6 @@
-package com.damburisoft.android.yamalocationsrv.provider;
+package com.damburisoft.android.yamalocationsrv.model;
+
+import com.damburisoft.android.yamalocationsrv.provider.YamaLocationProvider;
 
 import android.content.ContentValues;
 import android.net.Uri;
@@ -6,8 +8,6 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 public class YamaLocation {
-
-    public static final String AUTHORITY = "com.damburisoft.android.yamalocationsrv.provider.yamalocation";
 
     private static final String TAG = "YamaLocation";
     
@@ -74,7 +74,7 @@ public class YamaLocation {
         /**
          * The content:// style URI for all data records of infos.
          */
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/infos");
+        public static final Uri CONTENT_URI = Uri.parse("content://" + YamaLocationProvider.AUTHORITY + "/infos");
         
         /**
          * The MIME type of {@link #CONTENT_URI} providing a directory of prices.

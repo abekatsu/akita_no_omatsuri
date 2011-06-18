@@ -13,17 +13,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    <uses-library android:name="com.google.android.maps"></uses-library>
-    <service android:name=".service.YamaLogService"
-           android:process=":yamalogservice"
-           android:label="Yama Log Service"
-           android:icon="@drawable/icon"
-           android:debuggable="true"
-           android:enabled="true"
-           android:exported="true" />
-
-    <activity android:screenOrientation="portrait" android:name=".YamaPreferenceActivity"></activity>
-</application>
+        <uses-library android:name="com.google.android.maps"></uses-library>
+        <service android:name=".service.YamaLogService"
+               android:process=":yamalogservice"
+               android:label="Yama Log Service"
+               android:icon="@drawable/icon"
+               android:debuggable="true"
+               android:enabled="true"
+               android:exported="true" />
+        <activity android:screenOrientation="portrait" android:name=".YamaPreferenceActivity" />
+        <provider android:authorities="com.damburisoft.android.yamalocationsrv.provider.yamalocationprovider"
+            android:name="com.damburisoft.android.yamalocationsrv.provider.YamaLocationProvider" />
+    </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"></uses-permission>
