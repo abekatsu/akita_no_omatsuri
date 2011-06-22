@@ -7,12 +7,12 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-public class YamaLocation {
+public class YamaLocationColumn {
 
     private static final String TAG = "YamaLocation";
     
     // This class cannot be instantiated
-    private YamaLocation() {}
+    private YamaLocationColumn() {}
     
     /**
      * @author abekatsu
@@ -20,7 +20,7 @@ public class YamaLocation {
      */
     public static final class Info implements BaseColumns {
         
-        private static final String TAG = YamaLocation.TAG + ".Info";
+        private static final String TAG = YamaLocationColumn.TAG + ".Info";
         
         // This class cannot be instantiated
         private Info() {}
@@ -70,6 +70,11 @@ public class YamaLocation {
          * The time data this info created, in milliseconds since the epoch.
          */
         public static final String TIMESTAMP = "timestamp";
+        
+        /**
+         * The time has been pushed or not.
+         */
+        public static final String PUSHED = "pushed";
         
         /**
          * The content:// style URI for all data records of infos.
@@ -125,6 +130,10 @@ public class YamaLocation {
             
             if (!_checkInsertValues(values, ALTITUDE, "altitude is not included.")) {
                 return false;
+            }
+            
+            if (!values.containsKey(PUSHED)) {
+                values.put(PUSHED, false);
             }
             
             return true;

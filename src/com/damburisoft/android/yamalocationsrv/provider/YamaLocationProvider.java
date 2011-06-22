@@ -2,6 +2,8 @@ package com.damburisoft.android.yamalocationsrv.provider;
 
 import java.util.HashMap;
 
+import com.damburisoft.android.yamalocationsrv.model.YamaLocationColumn;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -15,6 +17,8 @@ import android.text.TextUtils;
 
 public class YamaLocationProvider extends ContentProvider {
 
+    public static final String AUTHORITY = "com.damburisoft.android.yamalocationsrv.provider.yamalocationprovider";
+
     private YamaLocationSQLiteOpenHelper mDbHelper;
     
     private static final int INFO = 0; 
@@ -24,20 +28,21 @@ public class YamaLocationProvider extends ContentProvider {
     private static HashMap<String, String> sInfosProjectionMap;
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(YamaLocation.AUTHORITY, YamaLocation.Info.PATH, INFO);
-        sUriMatcher.addURI(YamaLocation.AUTHORITY, YamaLocation.Info.PATH + "/#", INFO_ID);
+        sUriMatcher.addURI(YamaLocationProvider.AUTHORITY, YamaLocationColumn.Info.PATH, INFO);
+        sUriMatcher.addURI(YamaLocationProvider.AUTHORITY, YamaLocationColumn.Info.PATH + "/#", INFO_ID);
         
         sInfosProjectionMap = new HashMap<String, String>();
-        sInfosProjectionMap.put(YamaLocation.Info._ID, YamaLocation.Info._ID);
-        sInfosProjectionMap.put(YamaLocation.Info.BATTERY_LEVEL, YamaLocation.Info._ID);
-        sInfosProjectionMap.put(YamaLocation.Info.NICKNAME, YamaLocation.Info.NICKNAME);
-        sInfosProjectionMap.put(YamaLocation.Info.HEADING, YamaLocation.Info.HEADING);
-        sInfosProjectionMap.put(YamaLocation.Info.HEADING_ACCURACY, YamaLocation.Info.HEADING_ACCURACY);
-        sInfosProjectionMap.put(YamaLocation.Info.HORIZONTAL_ACCURACY, YamaLocation.Info.HORIZONTAL_ACCURACY);
-        sInfosProjectionMap.put(YamaLocation.Info.LATITUDE, YamaLocation.Info.LATITUDE);
-        sInfosProjectionMap.put(YamaLocation.Info.LONGITUDE, YamaLocation.Info.LONGITUDE);
-        sInfosProjectionMap.put(YamaLocation.Info.ALTITUDE, YamaLocation.Info.ALTITUDE);
-        sInfosProjectionMap.put(YamaLocation.Info.TIMESTAMP, YamaLocation.Info.TIMESTAMP);
+        sInfosProjectionMap.put(YamaLocationColumn.Info._ID, YamaLocationColumn.Info._ID);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.BATTERY_LEVEL, YamaLocationColumn.Info.BATTERY_LEVEL);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.NICKNAME, YamaLocationColumn.Info.NICKNAME);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.HEADING, YamaLocationColumn.Info.HEADING);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.HEADING_ACCURACY, YamaLocationColumn.Info.HEADING_ACCURACY);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.HORIZONTAL_ACCURACY, YamaLocationColumn.Info.HORIZONTAL_ACCURACY);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.LATITUDE, YamaLocationColumn.Info.LATITUDE);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.LONGITUDE, YamaLocationColumn.Info.LONGITUDE);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.ALTITUDE, YamaLocationColumn.Info.ALTITUDE);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.TIMESTAMP, YamaLocationColumn.Info.TIMESTAMP);
+        sInfosProjectionMap.put(YamaLocationColumn.Info.PUSHED, YamaLocationColumn.Info.PUSHED);
 
     }
     
@@ -54,7 +59,7 @@ public class YamaLocationProvider extends ContentProvider {
         case INFO_ID:
             _id = uri.getPathSegments().get(1); 
             db_table_name = YamaLocationSQLiteOpenHelper.DB_TABLE_INFO_NAME;
-            whereClause = YamaLocation.Info._ID + "=" + _id 
+            whereClause = YamaLocationColumn.Info._ID + "=" + _id 
                 + (!TextUtils.isEmpty(initWhereClause) ? " AND (" + initWhereClause + ')' : "");
             break;
         default:
@@ -70,10 +75,10 @@ public class YamaLocationProvider extends ContentProvider {
         String ret = null;
         switch (sUriMatcher.match(uri)) {
         case INFO:
-            ret = YamaLocation.Info.CONTENT_TYPE;
+            ret = YamaLocationColumn.Info.CONTENT_TYPE;
             break;
         case INFO_ID:
-            ret = YamaLocation.Info.CONTENT_ITEM_TYPE;
+            ret = YamaLocationColumn.Info.CONTENT_ITEM_TYPE;
             break;
         default:
             throw new IllegalArgumentException("unknown URI: " + uri.toString());
@@ -94,9 +99,9 @@ public class YamaLocationProvider extends ContentProvider {
         
         switch (sUriMatcher.match(uri)) {
         case INFO:
-            content_uri = YamaLocation.Info.CONTENT_URI;
+            content_uri = YamaLocationColumn.Info.CONTENT_URI;
             db_table_name = YamaLocationSQLiteOpenHelper.DB_TABLE_INFO_NAME;
-            YamaLocation.Info.checkInsertValues(values);
+            YamaLocationColumn.Info.checkInsertValues(values);
             
             break;
         case INFO_ID:
@@ -135,7 +140,7 @@ public class YamaLocationProvider extends ContentProvider {
         case INFO_ID:
             qb.setTables(YamaLocationSQLiteOpenHelper.DB_TABLE_INFO_NAME);
             qb.setProjectionMap(sInfosProjectionMap);
-            qb.appendWhere(YamaLocation.Info._ID + "=" + uri.getPathSegments().get(1));
+            qb.appendWhere(YamaLocationColumn.Info._ID + "=" + uri.getPathSegments().get(1));
             break;
         default:
             throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -160,7 +165,7 @@ public class YamaLocationProvider extends ContentProvider {
         case INFO_ID:
             db_table = YamaLocationSQLiteOpenHelper.DB_TABLE_INFO_NAME;
             _id = uri.getPathSegments().get(1);
-            selection = YamaLocation.Info._ID + "=" + _id 
+            selection = YamaLocationColumn.Info._ID + "=" + _id 
                 + (!TextUtils.isEmpty(initSelection) ? "AND (" + initSelection + ")" : "");
             break;
         default:

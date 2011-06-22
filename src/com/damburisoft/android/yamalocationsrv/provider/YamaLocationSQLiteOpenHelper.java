@@ -1,5 +1,7 @@
 package com.damburisoft.android.yamalocationsrv.provider;
 
+import com.damburisoft.android.yamalocationsrv.model.YamaLocationColumn;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
@@ -27,16 +29,17 @@ public class YamaLocationSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private void createInfoTable(SQLiteDatabase db) {
         db.execSQL("Create TABLE " + DB_TABLE_INFO_NAME + " (" +
-                YamaLocation.Info._ID + " INTEGER PRIMARY KEY, " +
-                YamaLocation.Info.BATTERY_LEVEL + " REAL, " +
-                YamaLocation.Info.NICKNAME + " TEXT, " +
-                YamaLocation.Info.HEADING + " REAL, " +
-                YamaLocation.Info.HEADING_ACCURACY + " REAL, " +
-                YamaLocation.Info.HORIZONTAL_ACCURACY + " REAL, " +
-                YamaLocation.Info.LATITUDE + " REAL, " +
-                YamaLocation.Info.LONGITUDE + " REAL, " +
-                YamaLocation.Info.ALTITUDE + " REAL, " +
-                YamaLocation.Info.TIMESTAMP + " INTEGER );");
+                YamaLocationColumn.Info._ID + " INTEGER PRIMARY KEY, " +
+                YamaLocationColumn.Info.BATTERY_LEVEL + " REAL, " +
+                YamaLocationColumn.Info.NICKNAME + " TEXT, " +
+                YamaLocationColumn.Info.HEADING + " REAL, " +
+                YamaLocationColumn.Info.HEADING_ACCURACY + " REAL, " +
+                YamaLocationColumn.Info.HORIZONTAL_ACCURACY + " REAL, " +
+                YamaLocationColumn.Info.LATITUDE + " REAL, " +
+                YamaLocationColumn.Info.LONGITUDE + " REAL, " +
+                YamaLocationColumn.Info.ALTITUDE + " REAL, " +
+                YamaLocationColumn.Info.TIMESTAMP + " INTEGER, " +
+                YamaLocationColumn.Info.PUSHED + " INTEGER);");
     }
     
     @Override
