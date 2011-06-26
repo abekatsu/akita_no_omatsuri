@@ -8,18 +8,11 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.damburisoft.android.yamalocationsrv.YamaLocHttpClient;
-import com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity;
-import com.damburisoft.android.yamalocationsrv.model.YamaInfo;
-import com.damburisoft.android.yamalocationsrv.model.YamaLocationColumn;
-import com.damburisoft.android.yamalocationsrv.provider.YamaLocationProvider;
-
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -31,9 +24,12 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
+
+import com.damburisoft.android.yamalocationsrv.YamaLocHttpClient;
+import com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity;
+import com.damburisoft.android.yamalocationsrv.model.YamaInfo;
+import com.damburisoft.android.yamalocationsrv.model.YamaLocationColumn;
 
 public class LocationService extends Service implements SensorEventListener, LocationListener {
     
@@ -94,6 +90,7 @@ public class LocationService extends Service implements SensorEventListener, Loc
     public boolean onUnbind(Intent intent) {
         // TODO Auto-generated method stub
         stopManagers();
+        stopTimerTasks();
         return super.onUnbind(intent);
 
     }
