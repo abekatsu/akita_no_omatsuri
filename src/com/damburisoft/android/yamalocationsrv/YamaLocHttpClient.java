@@ -1,27 +1,20 @@
 package com.damburisoft.android.yamalocationsrv;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.protocol.HttpContext;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.damburisoft.android.yamalocationsrv.model.YamaHttpPost;
 import com.damburisoft.android.yamalocationsrv.model.YamaInfo;
 import com.damburisoft.android.yamalocationsrv.model.YamaLocationColumn;
-import com.damburisoft.android.yamalocationsrv.provider.YamaLocationProvider;
-import com.damburisoft.android.yamalocationsrv.provider.YamaLocationSQLiteOpenHelper;
-
-import java.io.IOException;
-import java.security.acl.LastOwnerException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.protocol.HttpContext;
 
 public class YamaLocHttpClient {
 
@@ -129,7 +122,7 @@ public class YamaLocHttpClient {
                 retArray = new ArrayList<YamaInfo>();
                 do {
                     YamaInfo info = new YamaInfo();
-                    
+                    info.id = c.getInt(c.getColumnIndex(YamaLocationColumn.Info._ID));
                     info.hikiyama = YamaPreferenceActivity.getHikiyamaName(mContext);
                     info.omatsuri = YamaPreferenceActivity.getOmatsuriName(mContext);
                     info.battery_level = c.getDouble(c.getColumnIndex(YamaLocationColumn.Info.BATTERY_LEVEL));

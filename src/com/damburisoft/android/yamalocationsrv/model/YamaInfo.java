@@ -10,7 +10,14 @@ import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+
 public class YamaInfo {
+    
+    @Key
+    public int id;
 
     @Key
     public String omatsuri;
@@ -129,6 +136,14 @@ public class YamaInfo {
         }
 
         return httpPost;
+    }
+
+    public int changePushed(Context context) {
+        final ContentResolver resolver = context.getContentResolver();
+        ContentValues updateValue = new ContentValues();
+        updateValue.put(YamaLocationColumn.Info.PUSHED, true);
+        String where = YamaLocationColumn.Info._ID + " = " + id;
+        return resolver.update(YamaLocationColumn.Info.CONTENT_URI, updateValue, where, null);
     }
     
     

@@ -8,11 +8,18 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.damburisoft.android.yamalocationsrv.YamaLocHttpClient;
 import com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity;
+import com.damburisoft.android.yamalocationsrv.model.YamaInfo;
+import com.damburisoft.android.yamalocationsrv.model.YamaLocationColumn;
+import com.damburisoft.android.yamalocationsrv.provider.YamaLocationProvider;
 
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -41,7 +48,6 @@ public class LocationService extends Service implements SensorEventListener, Loc
     private GeomagneticField mGeomagneticField = null;
     private float[] magneticFieldValues = new float[3];
     private float[] accelerometerValues = new float[3];
-    private double mCurrentAzimuth = Double.NaN;
     private double mBatteryLevel = 1.0;
     
     private boolean debug = true;
@@ -50,6 +56,8 @@ public class LocationService extends Service implements SensorEventListener, Loc
     private Timer mTimer = null;
     private TimerTask collectInfoTimer;
     private boolean isCollectInfoTimerRunning = false;
+    private TimerTask sendInfoTimer;
+    private boolean isSendInfoTimerRunning = false;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -142,8 +150,17 @@ public class LocationService extends Service implements SensorEventListener, Loc
     }
     
     private void startTimerTasks() {
-        if (isCollectInfoTimerRunning && collectInfoTimer != null) {
-            collectInfoTimer.cancel();
+        if (isCollectInfoTimerRunning) {
+            if (collectInfoTimer != null) {
+                collectInfoTimer.cancel();
+            }
+            isCollectInfoTimerRunning = false;
+        }
+        
+        if (isSendInfoTimerRunning) {
+            if (sendInfoTimer != null) {
+                sendInfoTimer.cancel();
+            }
             isCollectInfoTimerRunning = false;
         }
         
@@ -159,16 +176,46 @@ public class LocationService extends Service implements SensorEventListener, Loc
                 if (mCurrentLocation == null) {
                     return;
                 }
-                
-                double azimuth = calcurateAzumith(mCurrentLocation);
+                // Store Info.
+                ContentValues values = new ContentValues();
+                values.put(YamaLocationColumn.Info.BATTERY_LEVEL, 0.99); // TODO obtain battery level.
+                values.put(YamaLocationColumn.Info.HEADING, calcurateAzumith(mCurrentLocation));
+                values.put(YamaLocationColumn.Info.HEADING_ACCURACY, 0.0);
+                values.put(YamaLocationColumn.Info.HORIZONTAL_ACCURACY, mCurrentLocation.getAccuracy());
+                values.put(YamaLocationColumn.Info.LATITUDE, mCurrentLocation.getLatitude());
+                values.put(YamaLocationColumn.Info.LONGITUDE, mCurrentLocation.getLongitude());
+                values.put(YamaLocationColumn.Info.ALTITUDE, mCurrentLocation.getAltitude());
+                values.put(YamaLocationColumn.Info.PUSHED, false);
 
+                final ContentResolver resolver = getContentResolver();
+                resolver.insert(YamaLocationColumn.Info.CONTENT_URI, values);
                 
             }
         };
-        
-        long pollingInterval = YamaPreferenceActivity.getPollingInterval(getApplicationContext());
+        long pollingInterval = YamaPreferenceActivity.getPollingInterval(LocationService.this);
         mTimer.schedule(collectInfoTimer, 0, pollingInterval);
         isCollectInfoTimerRunning = true;
+        
+        sendInfoTimer = new TimerTask() {
+            
+            @Override
+            public void run() {
+                String server = YamaPreferenceActivity.getServerURIString(LocationService.this);
+                YamaLocHttpClient client = new YamaLocHttpClient(LocationService.this, server);
+                
+                List<YamaInfo> infoList = client.getYamaInfo(false);
+                for (YamaInfo info : infoList) {
+                    if (client.pushLocation(info)) {
+                        info.changePushed(LocationService.this);
+                    }
+                }
+                
+            }
+            
+        };
+        long pushingInterval = YamaPreferenceActivity.getPushingInterval(LocationService.this);
+        mTimer.schedule(sendInfoTimer, 0, pushingInterval);
+        isSendInfoTimerRunning = true;
         
     }
 
@@ -198,6 +245,24 @@ public class LocationService extends Service implements SensorEventListener, Loc
             isLocationListenerRegistered = false;
         }
     }
+    
+    private void stopTimerTasks() {
+        if (isCollectInfoTimerRunning) {
+            if (collectInfoTimer != null) {
+                collectInfoTimer.cancel();
+            }
+            isCollectInfoTimerRunning = false;
+        }
+        
+        if (isSendInfoTimerRunning) {
+            if (sendInfoTimer != null) {
+                sendInfoTimer.cancel();
+            }
+            isSendInfoTimerRunning = false;
+        }
+
+    }
+
     
     /*
      * (non-Javadoc)
