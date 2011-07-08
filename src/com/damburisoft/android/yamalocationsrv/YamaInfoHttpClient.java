@@ -25,6 +25,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.damburisoft.android.yamalocationsrv.model.OmatsuriEvent;
+import com.damburisoft.android.yamalocationsrv.model.OmatsuriRole;
 
 public class YamaInfoHttpClient {
     
@@ -55,7 +56,6 @@ public class YamaInfoHttpClient {
     }
 
     public List<OmatsuriEvent> getEvents() {
-        // TODO Auto-generated method stub
         String serverName = YamaPreferenceActivity.getServer(mContext);
         Uri uri = Uri.parse(serverName);
         Uri.Builder builder = uri.buildUpon();
@@ -114,6 +114,55 @@ public class YamaInfoHttpClient {
         
         // Authorization: Basic aG9nZTpmdWdh
         message.addHeader("Authorization", "Basic " + Base64.encodeBytes(sb.toString().getBytes()));
+    }
+
+    public List<OmatsuriRole> getRoles(int event_id) {
+        // TODO Auto-generated method stub
+        String serverName = YamaPreferenceActivity.getServer(mContext);
+        Uri uri = Uri.parse(serverName);
+        Uri.Builder builder = uri.buildUpon();
+        // http://192.168.101.210:3000/events/1/roles.json
+        builder.path("/events/" + event_id + "/roles.json");
+        Uri eventsUri = builder.build();
+
+        HttpGet httpGet = new HttpGet(eventsUri.toString());
+        // TODO add Basic Authentication
+        setBasicAuthenticationHeader(httpGet);
+        
+        try {
+            HttpResponse response = mClient.execute(httpGet);
+            if (response.getStatusLine().getStatusCode() < HttpStatus.SC_BAD_REQUEST) {
+                InputStream ins = response.getEntity().getContent();
+                InputStreamReader inr = new InputStreamReader(ins);
+                BufferedReader bufr = new BufferedReader(inr);
+                StringBuilder sb = new StringBuilder();  
+                String line;  
+                while((line = bufr.readLine()) != null){  
+                    sb.append(line);
+                }  
+
+                JSONArray jsonArray = new JSONArray(sb.toString());
+                int length = jsonArray.length();
+                List<OmatsuriRole> roles = new ArrayList<OmatsuriRole>(length);
+                for (int i = 0; i < length; i++) {
+                    JSONObject roleObj = jsonArray.getJSONObject(i).getJSONObject("role");
+                    OmatsuriRole role = new OmatsuriRole(roleObj);
+                    roles.add(role);
+                }
+                return roles;
+            }
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 }
