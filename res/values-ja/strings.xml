@@ -26,6 +26,7 @@
     <string name="akita_no_omatrusi_location_preferences">位置設定</string>
     <string name="akita_no_omatsuri_interval_preferences">時間間隔設定</string>
     <string name="akita_no_omatsuri_devicename_preferences">デバイス名設定</string>
+    <string name="akita_no_omatrusi_server_preferences">サーバー設定</string>
     <string name="akita_no_omatrusi_debug_preferences">デバッグ設定</string>
     
     <string name="omatsuri">お祭り</string>
@@ -61,6 +62,9 @@
     
     <string name="device_nickname_title">デバイス名</string>
     <string name="device_nickname_summary">サーバーでのデバイス識別用名称を指定して下さい</string>
+    
+    <string name="server_title">サーバーアドレス</string>
+    <string name="server_summary">位置情報の送信先サーバーアドレス（URI）を指定してください</string>
     
     <!--  here are preferences for debug. -->
     <string name="isLocalServer_title">Use local server.</string>

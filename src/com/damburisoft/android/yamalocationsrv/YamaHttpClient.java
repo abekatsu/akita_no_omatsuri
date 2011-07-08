@@ -3,6 +3,8 @@ package com.damburisoft.android.yamalocationsrv;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import net.iharder.Base64;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -107,6 +109,15 @@ public class YamaHttpClient implements Runnable {
         
         try {
             httpPost.setHeader("Content-Type", "application/json");
+            // TODO
+            String username = YamaPreferenceActivity.getUsername(mContext);
+            String password = YamaPreferenceActivity.getPassword(mContext);
+
+            String base64str = username + ":" + password;
+            StringBuilder sb = new StringBuilder();
+            sb.append("Basic ");
+            sb.append(Base64.encodeBytes(base64str.getBytes()));
+            httpPost.setHeader("Authorization", sb.toString()); // Headers for Basic Auth as "Authorization: Basic aG9nZTpmdWdh" 
             HttpEntity entity = new StringEntity(sendObject.toString());
             httpPost.setEntity(entity);
             HttpResponse objResponse = objHttp.execute(httpPost);

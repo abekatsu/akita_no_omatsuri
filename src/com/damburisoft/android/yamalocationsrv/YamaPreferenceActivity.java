@@ -62,6 +62,8 @@ public class YamaPreferenceActivity extends PreferenceActivity implements Shared
             setPushingIntervalSummary(sharedPreferences);
         } else if (key.equals(getString(R.string.device_nickname_key))) {
             setDeviceNicknameSummary(sharedPreferences);
+        } else if (key.equals(getString(R.string.server_key))) {
+            setServerSummary(sharedPreferences);
         }
 
     }
@@ -159,6 +161,19 @@ public class YamaPreferenceActivity extends PreferenceActivity implements Shared
         pref.setSummary(value);
     }
     
+    private void setServerSummary(SharedPreferences settings) {
+        String key = getString(R.string.server_key);
+        String value = getPreferencesString(this, key, ""); 
+        Preference pref = findPreference(key);
+        String summary;
+        if (settings.contains(key)) {
+            summary = "Server: " + value;
+        } else {
+            summary = "unspcified";
+        }
+        pref.setSummary(summary);
+    }
+
     private String getEntryFromList(String key, String value, int values_id, int entries_id,
             SharedPreferences settings) {
         return getEntryFromList(key, value, values_id, entries_id, settings, ""); 
@@ -261,5 +276,28 @@ public class YamaPreferenceActivity extends PreferenceActivity implements Shared
         return getPreferencesString(context, "sdcard_logname", DateTimeUtilities.getFilenameFromDateAndTime() + ".log");
     }
 
+    public static String getUsername(Context context) {
+        String key = context.getString(R.string.user_name_key);
+        return getPreferencesString(context, key, "");
+    }
+
+    public static String getPassword(Context context) {
+        String key = context.getString(R.string.user_password_key);
+        return getPreferencesString(context, key, "");
+    }
+
+    public static void setServer(Context context, String server) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = settings.edit();
+        String key = context.getString(R.string.server_key);
+        editor.putString(key, server);
+        
+        editor.commit();
+    }
+    
+    public static String getServer(Context context) {
+        String key = context.getString(R.string.server_key);
+        return getPreferencesString(context, key, "");
+    }
 
 }

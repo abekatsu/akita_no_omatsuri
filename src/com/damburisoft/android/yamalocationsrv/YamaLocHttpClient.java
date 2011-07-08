@@ -19,7 +19,6 @@ import com.damburisoft.android.yamalocationsrv.model.YamaLocationColumn;
 public class YamaLocHttpClient {
 
     private Context mContext;
-    private String mUrl;
     private static DefaultHttpClient mClient = new DefaultHttpClient();
     private static DefaultHttpRequestRetryHandler mHandler = new DefaultHttpRequestRetryHandler(5, false) {
         @Override
@@ -39,7 +38,6 @@ public class YamaLocHttpClient {
     
     public YamaLocHttpClient(Context context, String url) {
         mContext = context;
-        mUrl = url;
         _setUp();
     }
     

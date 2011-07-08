@@ -81,6 +81,13 @@
             android:summary="@string/device_nickname_summary" />
     </PreferenceCategory>
     
+    <PreferenceCategory android:title="@string/akita_no_omatrusi_server_preferences">
+        <EditTextPreference
+            android:key="@string/server_key"
+            android:title="@string/server_title"
+            android:summary="@string/server_summary" />
+    </PreferenceCategory>
+    
     <PreferenceCategory android:title="@string/akita_no_omatrusi_debug_preferences">
         <CheckBoxPreference 
             android:key="isLocalServer"

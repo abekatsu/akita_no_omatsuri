@@ -33,6 +33,7 @@
     <string name="akita_no_omatrusi_location_preferences">Preferences Location</string>
     <string name="akita_no_omatsuri_interval_preferences">Preferences Interval</string>
     <string name="akita_no_omatsuri_devicename_preferences">Preference Device name</string>
+    <string name="akita_no_omatrusi_server_preferences">Preference Server</string>
     <string name="akita_no_omatrusi_debug_preferences">Debug settings</string>
     
     <string name="omatsuri">Omatsuri</string>
@@ -78,6 +79,10 @@
     <string name="device_nickname_key">device_nickname</string>    
     <string name="device_nickname_title">Put Device Nickname</string>
     <string name="device_nickname_summary">identify device at Web Server</string>
+    
+    <string name="server_key">server_uri</string>
+    <string name="server_title">Put Server\'s address</string>
+    <string name="server_summary">Server\'s URI to send location information</string>
     
     <!--  here are preferences for debug. -->
     <string name="isLocalServer_title">Use local server.</string>
