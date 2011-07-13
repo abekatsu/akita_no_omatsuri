@@ -11,6 +11,7 @@
     <string name="menu_save">Save</string>
     <string name="menu_quit">Quit</string>
     <string name="menu_preference">Preferences</string>
+     <string name="menu_sync">Sync with server</string>
 
     <string name="log_saved_to_sdcard">Log is saved to SD card.</string>
     <string name="yama_location_service_registered">Location Service Registered</string>
@@ -40,12 +41,13 @@
     <string name="omatsuri_name_key">omatsuri_name</string>
     <string name="default_omatsuri_name">kakunodate</string>
     <string name="omatsuri_name_summary">Select Omatsuri from list.</string>
+    <string name="omatsuri_name_summary_set_server">Configure sending server firstly</string>
     <string name="omatsuri_name_dialogtitle">List Omatsuri</string>
     
-    <string name="hikiyama_key">hikiyama_name</string>
-    <string name="hikiyama_title">Setting Hikiyama</string>
+    <string name="hikiyama_key">Role</string>
+    <string name="hikiyama_title">Setting Role</string>
     <string name="hikiyama_summary">Select Omatsuri firstly</string>
-    <string name="hikiyama_dialogtitle">List Hikiyama</string>
+    <string name="hikiyama_dialogtitle">List Roles</string>
     
     <string name="user_name_key">user_name_key</string>
     <string name="user_name_title">Username</string>
@@ -83,6 +85,7 @@
     <string name="server_key">server_uri</string>
     <string name="server_title">Put Server\'s address</string>
     <string name="server_summary">Server\'s URI to send location information</string>
+    <string name="server_default_prefix">http://</string>
     
     <!--  here are preferences for debug. -->
     <string name="isLocalServer_title">Use local server.</string>

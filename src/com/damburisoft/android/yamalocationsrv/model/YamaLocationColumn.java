@@ -89,6 +89,7 @@ public class YamaLocationColumn {
         /**
          * The MIME type of a {@link #CONTENT_URI} sub-directory of a single price.
          */
+        
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.com.damburisoft.yamalocation.info";
         /**
          * The paths for ContentProvider. 

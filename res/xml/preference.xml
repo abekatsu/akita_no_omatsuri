@@ -1,37 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/akita_no_omatrusi_omatsuri_preferences">
-        <com.damburisoft.android.yamalocationsrv.OmatsuriListPreference 
-            android:key="@string/omatsuri_name_key"
-            android:title="@string/omatsuri"
-            android:summary="@string/omatsuri_name_summary"
-            android:dialogTitle="@string/omatsuri_name_dialogtitle" 
-            android:entries="@array/omatsuri_name_entries"
-            android:entryValues="@array/omatsuri_name_values" />
 
-        <com.damburisoft.android.yamalocationsrv.OmatsuriListPreference
-            android:key="@string/hikiyama_key"
-            android:title="@string/hikiyama_title"
-            android:summary="@string/hikiyama_summary"
-            android:dialogTitle="@string/hikiyama_dialogtitle"
-            android:entries="@array/hikiyama_entries"
-            android:entryValues="@array/hikiyama_values" />
-            
+    <PreferenceCategory android:title="@string/akita_no_omatrusi_server_preferences">
+        <EditTextPreference
+            android:inputType="textUri"
+            android:key="@string/server_key"
+            android:title="@string/server_title"
+            android:summary="@string/server_summary" 
+            android:defaultValue="@string/server_default_prefix" />
     </PreferenceCategory>
-    
+
     <PreferenceCategory android:title="@string/akita_no_omatrusi_user_preferences">
-        <EditTextPreference 
+        <EditTextPreference
+            android:inputType="textUri" 
             android:key="@string/user_name_key"
             android:title="@string/user_name_title"
             android:summary="@string/user_name_summary" />
         <EditTextPreference
+            android:inputType="textPassword" 
             android:password="true"
             android:key="@string/user_password_key"
             android:title="@string/user_password_title"
             android:summary="@string/user_password_summary" />
     </PreferenceCategory>
-    
 
+    <PreferenceCategory android:title="@string/akita_no_omatrusi_omatsuri_preferences">
+        <com.damburisoft.android.yamalocationsrv.OmatsuriListPreference 
+            android:key="@string/omatsuri_name_key"
+            android:title="@string/omatsuri"
+            android:summary="@string/omatsuri_name_summary"
+            android:dialogTitle="@string/omatsuri_name_dialogtitle" /> 
+
+        <com.damburisoft.android.yamalocationsrv.OmatsuriListPreference
+            android:key="@string/hikiyama_key"
+            android:title="@string/hikiyama_title"
+            android:summary="@string/hikiyama_summary"
+            android:dialogTitle="@string/hikiyama_dialogtitle" />
+    </PreferenceCategory>
+    
     <PreferenceCategory android:title="@string/akita_no_omatrusi_location_preferences">
         <ListPreference
             android:key="@string/gps_update_minDistance_key"
@@ -81,13 +87,8 @@
             android:summary="@string/device_nickname_summary" />
     </PreferenceCategory>
     
-    <PreferenceCategory android:title="@string/akita_no_omatrusi_server_preferences">
-        <EditTextPreference
-            android:key="@string/server_key"
-            android:title="@string/server_title"
-            android:summary="@string/server_summary" />
-    </PreferenceCategory>
     
+    <!-- 
     <PreferenceCategory android:title="@string/akita_no_omatrusi_debug_preferences">
         <CheckBoxPreference 
             android:key="isLocalServer"
@@ -103,4 +104,5 @@
             
 
     </PreferenceCategory>
+    -->
 </PreferenceScreen>

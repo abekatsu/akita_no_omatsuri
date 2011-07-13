@@ -11,6 +11,7 @@
     <string name="menu_save">SDカードに保存</string>
     <string name="menu_quit">終了</string>
     <string name="menu_preference">設定</string>
+    <string name="menu_sync">サーバーと同期</string>
 
     <string name="log_saved_to_sdcard">ログをSDカードに保存しました</string>
     <string name="yama_location_service_registered">位置情報収集サービスをシステムに登録しました</string>
@@ -31,12 +32,13 @@
     
     <string name="omatsuri">お祭り</string>
     <string name="omatsuri_name_summary">お祭りを設定して下さい</string>
+    <string name="omatsuri_name_summary_set_server">最初にサーバーの設定をしてください</string>
     <string name="omatsuri_name_dialogtitle">お祭りの一覧</string>
     
-    <string name="hikiyama_title">曳山</string>
+    <string name="hikiyama_title">役割</string>
     <string name="hikiyama_summary">最初にお祭りを設定してください</string>
-    <string name="hikiyama_summary_2nd">曳山を設定してください</string>
-    <string name="hikiyama_dialogtitle">曳山の一覧</string>
+    <string name="hikiyama_summary_2nd">役割を設定してください</string>
+    <string name="hikiyama_dialogtitle">役割の一覧</string>
     
     <string name="user_name_title">ユーザー名</string>
     <string name="user_name_summary">登録したユーザー名を入力してください</string>

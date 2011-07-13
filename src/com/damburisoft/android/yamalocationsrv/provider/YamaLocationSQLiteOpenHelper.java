@@ -12,7 +12,7 @@ public class YamaLocationSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public static final String DB_TABLE_INFO_NAME = "info";
     
-    private static final String DB_NAME = "okozukaiNote.db";
+    private static final String DB_NAME = "location.db";
 
     private static final int DB_VERSION = 1;
     private static final String TAG = YamaLocationSQLiteOpenHelper.class.getName();
@@ -53,6 +53,10 @@ public class YamaLocationSQLiteOpenHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (debug) {
             Log.i(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
+        }
+
+        if (oldVersion == 0) {
+            db.execSQL("Drop TABLE " + DB_TABLE_INFO_NAME + ";");
         }
         
     }

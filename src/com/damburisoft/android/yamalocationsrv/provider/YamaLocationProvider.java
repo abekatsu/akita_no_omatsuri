@@ -102,7 +102,6 @@ public class YamaLocationProvider extends ContentProvider {
             content_uri = YamaLocationColumn.Info.CONTENT_URI;
             db_table_name = YamaLocationSQLiteOpenHelper.DB_TABLE_INFO_NAME;
             YamaLocationColumn.Info.checkInsertValues(values);
-            
             break;
         case INFO_ID:
             throw new IllegalArgumentException("invalid URI: " + uri.toString());
