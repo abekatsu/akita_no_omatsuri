@@ -109,7 +109,7 @@ public class YamaInfoHttpClient {
         sb.append(password);
         
         // Authorization: Basic aG9nZTpmdWdh
-        message.addHeader("Authorization", "Basic " + Base64.encodeBytes(sb.toString().getBytes()));
+        message.setHeader("Authorization", "Basic " + Base64.encodeBytes(sb.toString().getBytes()));
     }
 
     public List<OmatsuriRole> getRoles(int event_id) {

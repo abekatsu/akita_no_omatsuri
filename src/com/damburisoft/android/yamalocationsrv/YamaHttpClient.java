@@ -2,6 +2,7 @@ package com.damburisoft.android.yamalocationsrv;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 import net.iharder.Base64;
 
@@ -17,8 +18,12 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.damburisoft.android.yamalocationsrv.model.OmatsuriEvent;
+import com.damburisoft.android.yamalocationsrv.model.OmatsuriRole;
+
 import android.content.Context;
 import android.location.Location;
+import android.net.Uri;
 import android.util.Log;
 
 public class YamaHttpClient implements Runnable {
@@ -30,8 +35,6 @@ public class YamaHttpClient implements Runnable {
     private double mBatteryLevel;
     private Location mLocation;
     private Context mContext;
-    private String mHikiyama;
-    private String mOmomatsuri;
     private String mNickname;
 
     public YamaHttpClient(Context context, long datetime, double azimuth, 
@@ -41,8 +44,6 @@ public class YamaHttpClient implements Runnable {
         mAzimuth  = azimuth;
         mLocation = location;
         mBatteryLevel = batteryLevel;
-        mHikiyama = YamaPreferenceActivity.getHikiyamaName(mContext);    
-        mOmomatsuri = YamaPreferenceActivity.getOmatsuriName(mContext);
         mNickname = YamaPreferenceActivity.getNickName(mContext);
     }
 
@@ -52,14 +53,12 @@ public class YamaHttpClient implements Runnable {
         mAzimuth  = info.getAzimuth();
         mLocation = info.getLocation();
         mBatteryLevel = info.getBatteryLevel();
-        mHikiyama = info.getHikiyama();
-        mOmomatsuri = info.getOmatsuri();
         mNickname = YamaPreferenceActivity.getNickName(mContext);
     }
 
     public JSONObject createJsonObject() {
-        JSONObject valueObj = new JSONObject();
         JSONObject retObj = new JSONObject();
+        JSONObject valueObj = new JSONObject();
         try {
             valueObj.put("heading_accuracy", 0.0);
             valueObj.put("device_nickname", mNickname);
@@ -71,17 +70,14 @@ public class YamaHttpClient implements Runnable {
                     DateTimeUtilities.getDateAndTime(mDateTime));
             valueObj.put("battery_level", mBatteryLevel);
             retObj.put("location", valueObj);
-            retObj.put("hikiyama", mHikiyama);
-            retObj.put("omomatsuri", mOmomatsuri);
+            retObj.put("now", DateTimeUtilities.getDateAndTime(new Date()));
+            return retObj;
         } catch (JSONException e) {
-            Log.e(TAG, "createJsonObject() ", e);
             e.printStackTrace();
-            return null;
         }
-
-        return retObj;
+        return null;
     }
-
+    
     public void run() {
         JSONObject sendObject = createJsonObject();
 
@@ -104,20 +100,35 @@ public class YamaHttpClient implements Runnable {
         };
         objHttp.setHttpRequestRetryHandler(handler);
         
-        HttpPost httpPost = new HttpPost(
-                YamaPreferenceActivity.getServerURIString(mContext));
-        
-        try {
-            httpPost.setHeader("Content-Type", "application/json");
-            // TODO
-            String username = YamaPreferenceActivity.getUsername(mContext);
-            String password = YamaPreferenceActivity.getPassword(mContext);
+        String serverName = YamaPreferenceActivity.getServer(mContext);
+        String event_id_str = YamaPreferenceActivity.getEventID(mContext);
+        String role_id_str = YamaPreferenceActivity.getRoleID(mContext);
+        String username = YamaPreferenceActivity.getUsername(mContext);
+        String password = YamaPreferenceActivity.getPassword(mContext);
 
-            String base64str = username + ":" + password;
-            StringBuilder sb = new StringBuilder();
-            sb.append("Basic ");
-            sb.append(Base64.encodeBytes(base64str.getBytes()));
-            httpPost.setHeader("Authorization", sb.toString()); // Headers for Basic Auth as "Authorization: Basic aG9nZTpmdWdh" 
+        if (serverName == null || event_id_str == null || role_id_str == null
+                || username == null || password == null) {
+            return;
+        }
+        
+        Uri uri = Uri.parse(serverName);
+        Uri.Builder builder = uri.buildUpon();
+        builder.path(OmatsuriEvent.Columns.PATH + "/" + event_id_str
+                + "/" + OmatsuriRole.Columns.PATH + "/" + role_id_str 
+                + "/locations.json");
+
+        
+        HttpPost httpPost = new HttpPost(builder.build().toString());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(username);
+        sb.append(":");
+        sb.append(password);
+        httpPost.setHeader("Authorization", "Basic " + Base64.encodeBytes(sb.toString().getBytes()));
+        httpPost.setHeader("Content-Type", "application/json");
+
+        try {
+
             HttpEntity entity = new StringEntity(sendObject.toString());
             httpPost.setEntity(entity);
             HttpResponse objResponse = objHttp.execute(httpPost);
