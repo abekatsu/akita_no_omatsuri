@@ -12,6 +12,7 @@
     <string name="menu_quit">終了</string>
     <string name="menu_preference">設定</string>
     <string name="menu_sync">サーバーと同期</string>
+    <string name="menu_back">メイン画面に戻る</string>
 
     <string name="log_saved_to_sdcard">ログをSDカードに保存しました</string>
     <string name="yama_location_service_registered">位置情報収集サービスをシステムに登録しました</string>
@@ -67,6 +68,9 @@
     
     <string name="server_title">サーバーアドレス</string>
     <string name="server_summary">位置情報の送信先サーバーアドレス（URI）を指定してください</string>
+    
+    <string name="server_setting_not_completed">お祭り名と役割を設定してください。</string>
+    
     
     <!--  here are preferences for debug. -->
     <string name="isLocalServer_title">Use local server.</string>

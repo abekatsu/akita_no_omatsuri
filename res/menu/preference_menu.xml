@@ -2,4 +2,5 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:title="@string/menu_sync" android:id="@+id/menu_sync" android:icon="@drawable/ic_menu_refresh" />
+    <item android:title="@string/menu_back" android:id="@+id/menu_back" android:icon="@drawable/ic_menu_back" />
 </menu>

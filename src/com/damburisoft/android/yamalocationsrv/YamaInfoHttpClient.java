@@ -63,7 +63,6 @@ public class YamaInfoHttpClient {
         Uri eventsUri = builder.build();
 
         HttpGet httpGet = new HttpGet(eventsUri.toString());
-        // TODO add Basic Authentication
         setBasicAuthenticationHeader(httpGet);
         
         try {
@@ -90,13 +89,10 @@ public class YamaInfoHttpClient {
             }
 
         } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
@@ -117,7 +113,6 @@ public class YamaInfoHttpClient {
     }
 
     public List<OmatsuriRole> getRoles(int event_id) {
-        // TODO Auto-generated method stub
         String serverName = YamaPreferenceActivity.getServer(mContext);
         Uri uri = Uri.parse(serverName);
         Uri.Builder builder = uri.buildUpon();
@@ -126,7 +121,6 @@ public class YamaInfoHttpClient {
         Uri eventsUri = builder.build();
 
         HttpGet httpGet = new HttpGet(eventsUri.toString());
-        // TODO add Basic Authentication
         setBasicAuthenticationHeader(httpGet);
         
         try {
@@ -152,13 +146,10 @@ public class YamaInfoHttpClient {
                 return roles;
             }
         } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

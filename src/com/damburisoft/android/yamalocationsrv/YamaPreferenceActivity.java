@@ -11,9 +11,13 @@ import com.damburisoft.android.yamalocationsrv.model.OmatsuriRoleUpdateListener;
 import com.damburisoft.android.yamalocationsrv.provider.EventInfoSQLiteOpenHelper;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,14 +40,30 @@ import android.view.MenuItem;
 public class YamaPreferenceActivity extends PreferenceActivity implements 
     SharedPreferences.OnSharedPreferenceChangeListener, OmatsuriEventUpdateListener, OmatsuriRoleUpdateListener {
 
+    public static final String SERVER_SETUP = "YamaPreferenceActivity_SERVER_SETUP";
+    
     private static final String TAG = "YamaPreferenceActivity";
     private static final boolean debug = false;
+
+    private static final int WARN_DIALOG_ID = 0;;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preference);
+        Intent i = getIntent();
+        boolean server_setup_configured = i.getBooleanExtra(SERVER_SETUP, true);
+        if (!server_setup_configured) {
+            showDialog(WARN_DIALOG_ID);
+        }
+
+        
+        // SetUp Entries and EntryValues on each OmatsuriListPreferences.
+        setUpEventEntryAndValue();
+        setUpRoleEntryAndValue();
+        
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        // SetUp Summary on each Preferences
         setServerSummary(settings);
         setUsernameSummary(settings);
         setOmatsuriSummary(settings);
@@ -143,7 +163,7 @@ public class YamaPreferenceActivity extends PreferenceActivity implements
     }
 
     private void setOmatsuriSummary(SharedPreferences settings) {
-        
+
         String key = getString(R.string.omatsuri_name_key);
         OmatsuriListPreference pref = (OmatsuriListPreference)findPreference(key);
         CharSequence entry = pref.getEntry();
@@ -158,13 +178,8 @@ public class YamaPreferenceActivity extends PreferenceActivity implements
             }
             
         } else {
-            summary = entry.toString();
             pref.setEnabled(true);
-            String event_id_str = pref.getValue().toString();
-            if (event_id_str != null) {
-                int event_id = Integer.parseInt(event_id_str);
-                pickUpRoleFromServer(settings, event_id);
-            }
+            summary = entry.toString();
         }
         pref.setSummary(summary);
 
@@ -177,7 +192,7 @@ public class YamaPreferenceActivity extends PreferenceActivity implements
 
         String summary;
         if (entry == null) {
-            if (!settings.contains(getString(R.string.omatsuri_name_key))) {
+            if (pref.getEntries() == null) {
                 summary = getString(R.string.hikiyama_summary);
                 pref.setEnabled(false);
             } else {
@@ -292,15 +307,55 @@ public class YamaPreferenceActivity extends PreferenceActivity implements
     }
 
     public static String getOmatsuriName(Context context) {
-        String defaultOmatsuriName = context.getString(R.string.default_omatsuri_name);
-        String key = context.getString(R.string.omatsuri_name_key);
-        return getPreferencesString(context, key, defaultOmatsuriName);
+        String ret = null;
+        final ContentResolver resolver = context.getContentResolver();
+        String event_id = YamaPreferenceActivity.getEventID(context);
+        String selection = OmatsuriEvent.Columns.ID + " = " + event_id;
+        String[] projection = {OmatsuriEvent.Columns._ID, OmatsuriEvent.Columns.TITLE};
+
+        Cursor c = resolver.query(OmatsuriEvent.Columns.CONTENT_URI, projection, selection, null, null);
+        if (c != null) {
+            if (c.moveToFirst()) {
+                ret = c.getString(c.getColumnIndex(OmatsuriEvent.Columns.TITLE));
+            }
+            c.close();
+        }
+        
+        return ret;
     }
+    
+    public static String getEventID(Context context) {
+        String key = context.getString(R.string.omatsuri_name_key);
+        return getPreferencesString(context, key, null);
+    }
+    
 
     public static String getHikiyamaName(Context context) {
-        String defaultHikiyamaName = context.getString(R.string.default_hikiyama);
+        String ret = null;
+        final ContentResolver resolver = context.getContentResolver();
+        String event_id = YamaPreferenceActivity.getEventID(context);
+        final Uri uri = Uri.withAppendedPath(OmatsuriEvent.Columns.CONTENT_URI,
+                "" + event_id + "/" + OmatsuriRole.Columns.PATH);
+        
+        String role_id = YamaPreferenceActivity.getRoleID(context);
+        String selection = OmatsuriRole.Columns.ID + "=" + role_id;
+        String[] projection = {OmatsuriRole.Columns._ID, OmatsuriRole.Columns.NAME};
+
+        Cursor c = resolver.query(uri, projection, selection, null, null);
+        if (c != null) {
+            if (c.moveToFirst()) {
+                ret = c.getString(c.getColumnIndex(OmatsuriRole.Columns.NAME));
+            }
+            c.close();
+        }
+        
+        
+        return ret;
+    }
+    
+    public static String getRoleID(Context context) {
         String key = context.getString(R.string.hikiyama_key);
-        return getPreferencesString(context, key, defaultHikiyamaName);
+        return getPreferencesString(context, key, null);
     }
 
     public static boolean isUseLocalServer(Context context) {
@@ -522,6 +577,16 @@ public class YamaPreferenceActivity extends PreferenceActivity implements
         }
     }
     
+    private void setUpRoleEntryAndValue() {
+        String key = getString(R.string.omatsuri_name_key);
+        OmatsuriListPreference pref = (OmatsuriListPreference)findPreference(key);
+        CharSequence event_id_char = pref.getValue();
+        if (event_id_char != null) {
+            int event_id = Integer.parseInt(event_id_char.toString());
+            setUpRoleEntryAndValue(event_id);
+        }
+    }
+    
     private void setUpRoleEntryAndValue(int event_id) {
         final ContentResolver resolver = getContentResolver();
         Cursor c;
@@ -618,4 +683,36 @@ public class YamaPreferenceActivity extends PreferenceActivity implements
         setPreferenceValues(context, key, password);
     }
 
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = null;
+        switch (id) {
+        case WARN_DIALOG_ID:
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(getString(R.string.server_setting_not_completed));
+            builder.setCancelable(true);
+            builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                
+                public void onCancel(DialogInterface dialogInterface) {
+                    dialogInterface.dismiss();
+                }
+            });
+            builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                
+                public void onClick(DialogInterface dialogInterface, int id) {
+                    dismissDialog(WARN_DIALOG_ID);
+                    removeDialog(WARN_DIALOG_ID);
+                }
+            });
+            dialog = builder.create();
+        }
+            break;
+        default:
+            dialog = null;
+        }
+        return dialog;
+    }
+
+    
 }

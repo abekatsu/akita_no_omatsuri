@@ -114,6 +114,16 @@ public class YamaLocActivity extends MapActivity {
     protected void onResume() {
         super.onResume();
         tryBindLogService();
+        
+        String event_id_str = YamaPreferenceActivity.getEventID(getApplicationContext());
+        String role_id_str = YamaPreferenceActivity.getRoleID(getApplicationContext());
+        if (event_id_str == null || role_id_str == null) {
+            Intent intent = new Intent();
+            intent.setClassName("com.damburisoft.android.yamalocationsrv",
+                    "com.damburisoft.android.yamalocationsrv.YamaPreferenceActivity");
+            intent.putExtra(YamaPreferenceActivity.SERVER_SETUP, false);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -130,12 +140,26 @@ public class YamaLocActivity extends MapActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.mainview_menu, menu);
+
+
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem mi = menu.findItem(R.id.menu_startstop);
+
+        if (mi == null) {
+            return true;
+        }
+        String event_id_str = YamaPreferenceActivity.getEventID(getApplicationContext());
+        String role_id_str = YamaPreferenceActivity.getRoleID(getApplicationContext());
+        if (event_id_str == null || role_id_str == null) {
+            mi.setVisible(false);
+        } else {
+            mi.setVisible(true);
+        }
+        
         if (yamaLogService == null) {
             Log.e(TAG, "YamaLogService is null");
             mi.setTitle(R.string.menu_start);
@@ -174,7 +198,6 @@ public class YamaLocActivity extends MapActivity {
                     startPollingService();
                 }
             } catch (RemoteException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -192,7 +215,6 @@ public class YamaLocActivity extends MapActivity {
                     stopPollingService();
                 }
             } catch (RemoteException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } finally {
                 finish();
