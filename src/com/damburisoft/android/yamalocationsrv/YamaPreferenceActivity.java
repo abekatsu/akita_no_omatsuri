@@ -633,6 +633,7 @@ public class YamaPreferenceActivity extends PreferenceActivity implements
         db.execSQL("DROP TABLE IF EXISTS " + EventInfoSQLiteOpenHelper.DB_ROLE_TABLE_NAME);
         helper.onCreate(db);
         db.endTransaction();
+        db.close();
 
         removeEntryAndValues(R.string.omatsuri_name_key, R.string.omatsuri_name_summary_set_server);
         removeEntryAndValues(R.string.hikiyama_key, R.string.hikiyama_summary);
