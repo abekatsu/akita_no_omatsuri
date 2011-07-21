@@ -8,13 +8,30 @@ import android.provider.BaseColumns;
 
 public class OmatsuriRole extends AbstractOmatsuriObject {
 
-    public OmatsuriRole(JSONObject obj) throws JSONException {
+    public OmatsuriRole(JSONObject obj) {
         super();
-        this.id = obj.getInt("id");
+        try {
+            this.id = obj.getInt("id");
+        } catch (JSONException e) {
+            this.id = 0;
+            e.printStackTrace();
+        }
         this.code = getJSONObjectStringValue("code", obj);
         this.created_at = getJSONObjectStringValue("created_at", obj);
-        this.device_id = obj.getInt("device_id");
-        this.event_id = obj.getInt("event_id");
+        
+        try {
+            this.device_id = obj.getInt("device_id");
+        } catch (JSONException e) {
+            this.device_id = 0;
+            e.printStackTrace();
+        }
+        
+        try {
+            this.event_id = obj.getInt("event_id");
+        } catch (JSONException e) {
+            this.event_id = 0;
+            e.printStackTrace();
+        }
         this.name = getJSONObjectStringValue("name", obj);
         this.summary = getJSONObjectStringValue("summary", obj);
         this.updated_at = getJSONObjectStringValue("updated_at", obj);
